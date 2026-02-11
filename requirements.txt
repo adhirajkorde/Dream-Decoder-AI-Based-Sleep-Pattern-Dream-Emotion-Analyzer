@@ -1,0 +1,14 @@
+# Dream Decoder Dependencies
+
+# Web Framework
+flask>=3.0.0
+flask-cors>=4.0.0
+
+# NLP & ML
+transformers>=4.36.0
+torch>=2.1.0
+spacy>=3.7.2
+
+# Utilities
+python-dateutil>=2.8.2
+fpdf2>=2.8.5

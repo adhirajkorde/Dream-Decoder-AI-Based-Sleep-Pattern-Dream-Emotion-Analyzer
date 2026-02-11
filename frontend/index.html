@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream Decoder - AI Dream Journal</title>
+    <meta name="description" content="Analyze your dreams with AI-powered emotion detection and pattern recognition">
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <span class="logo-icon">🌙</span>
+                <h1>Dream Decoder</h1>
+            </div>
+            <p class="tagline">AI-Powered Dream Analysis</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Navigation Tabs -->
+            <nav class="tab-nav">
+                <button class="tab-btn active" data-tab="journal">
+                    <span class="tab-icon">📝</span>
+                    <span class="tab-text">Dream Journal</span>
+                </button>
+                <button class="tab-btn" data-tab="sleep">
+                    <span class="tab-icon">😴</span>
+                    <span class="tab-text">Sleep Log</span>
+                </button>
+                <button class="tab-btn" data-tab="analytics">
+                    <span class="tab-icon">📊</span>
+                    <span class="tab-text">Analytics</span>
+                </button>
+                <button class="tab-btn" data-tab="insights">
+                    <span class="tab-icon">💡</span>
+                    <span class="tab-text">Insights</span>
+                </button>
+            </nav>
+
+            <!-- Tab Panels -->
+            <div class="tab-panels">
+                <!-- Dream Journal Panel -->
+                <section id="journal-panel" class="tab-panel active">
+                    <div class="panel-grid">
+                        <!-- New Dream Entry -->
+                        <div class="card dream-entry-card">
+                            <div class="card-header">
+                                <h2>✨ Record Your Dream</h2>
+                            </div>
+                            <div class="card-body">
+                                <form id="dream-form">
+                                    <div class="form-group">
+                                        <label for="dream-content">Describe your dream...</label>
+                                        <div class="textarea-container">
+                                            <textarea id="dream-content" name="content"
+                                                placeholder="Last night I dreamed that I was flying over a beautiful city..."
+                                                rows="6" required></textarea>
+                                            <button type="button" class="btn-voice" id="voice-btn"
+                                                title="Start voice-to-text">
+                                                <span class="voice-icon">🎤</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary" id="submit-dream">
+                                        <span class="btn-icon">🧠</span>
+                                        <span>Analyze & Save</span>
+                                    </button>
+                                </form>
+
+                                <!-- Analysis Preview -->
+                                <div id="analysis-preview" class="analysis-preview hidden">
+                                    <h3>✨ Dream Analysis</h3>
+                                    <div class="analysis-content"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dream History -->
+                        <div class="card dream-history-card">
+                            <div class="card-header">
+                                <h2>📚 Dream History</h2>
+                                <span class="dream-count" id="dream-count">0 dreams</span>
+                            </div>
+                            <div class="card-body">
+                                <div id="dreams-list" class="dreams-list custom-scrollbar">
+                                    <div class="empty-state">
+                                        <span class="empty-icon">🌟</span>
+                                        <p>No dreams recorded yet</p>
+                                        <p class="hint">Start your journey by recording your first dream!</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Sleep Log Panel -->
+                <section id="sleep-panel" class="tab-panel">
+                    <div class="panel-grid">
+                        <!-- Log Sleep -->
+                        <div class="card sleep-entry-card">
+                            <div class="card-header">
+                                <h2>😴 Log Your Sleep</h2>
+                            </div>
+                            <div class="card-body">
+                                <form id="sleep-form">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="sleep-date">Date</label>
+                                            <input type="date" id="sleep-date" name="date" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="sleep-duration">Hours Slept</label>
+                                            <input type="number" id="sleep-duration" name="duration_hours" min="0"
+                                                max="24" step="0.5" placeholder="7.5" required>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="sleep-wakeups">Times Woken Up</label>
+                                            <input type="number" id="sleep-wakeups" name="wakeups" min="0" max="20"
+                                                value="0">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="sleep-quality">Sleep Quality (1-10)</label>
+                                            <input type="range" id="sleep-quality" name="quality_rating" min="1"
+                                                max="10" value="5">
+                                            <span class="range-value" id="quality-value">5</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="sleep-notes">Notes (optional)</label>
+                                        <textarea id="sleep-notes" name="notes" rows="2"
+                                            placeholder="Any notes about your sleep..."></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">
+                                        <span class="btn-icon">💤</span>
+                                        <span>Save Sleep Log</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Sleep History -->
+                        <div class="card sleep-history-card">
+                            <div class="card-header">
+                                <h2>📋 Sleep Records</h2>
+                            </div>
+                            <div class="card-body">
+                                <div class="sleep-stats" id="sleep-stats">
+                                    <div class="stat-card">
+                                        <span class="stat-label">Avg Quality</span>
+                                        <span class="stat-value" id="avg-quality">-</span>
+                                    </div>
+                                    <div class="stat-card">
+                                        <span class="stat-label">Avg Duration</span>
+                                        <span class="stat-value" id="avg-duration">-</span>
+                                    </div>
+                                </div>
+                                <div id="sleep-list" class="sleep-list custom-scrollbar">
+                                    <div class="empty-state">
+                                        <span class="empty-icon">🛏️</span>
+                                        <p>No sleep records yet</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Analytics Panel -->
+                <section id="analytics-panel" class="tab-panel">
+                    <div class="analytics-grid">
+                        <!-- Emotion Trends Chart -->
+                        <div class="card chart-card">
+                            <div class="card-header">
+                                <h2>🎭 Emotion Trends</h2>
+                                <select id="emotion-period" class="period-select">
+                                    <option value="7">Last 7 days</option>
+                                    <option value="14">Last 14 days</option>
+                                    <option value="30" selected>Last 30 days</option>
+                                </select>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="emotion-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Sleep Quality Chart -->
+                        <div class="card chart-card">
+                            <div class="card-header">
+                                <h2>😴 Sleep Quality</h2>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="sleep-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Top Keywords -->
+                        <div class="card keywords-card">
+                            <div class="card-header">
+                                <h2>🔮 Top Dream Themes</h2>
+                            </div>
+                            <div class="card-body">
+                                <div id="keywords-cloud" class="keywords-cloud">
+                                    <div class="empty-state small">
+                                        <p>Record more dreams to see themes</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Emotion Breakdown -->
+                        <div class="card breakdown-card">
+                            <div class="card-header">
+                                <h2>📈 Emotion Breakdown</h2>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="emotion-pie-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Insights Panel -->
+                <section id="insights-panel" class="tab-panel">
+                    <div class="insights-grid-3col">
+                        <!-- Main Insights -->
+                        <div class="card insights-main-card">
+                            <div class="card-header">
+                                <h2>💡 Your Insights</h2>
+                                <button id="refresh-insights" class="btn btn-ghost">
+                                    <span>🔄</span>
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div id="insights-list" class="insights-list">
+                                    <div class="loading-state">
+                                        <span class="loading-icon">⏳</span>
+                                        <p>Analyzing your patterns...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Health & Wellness Tips -->
+                        <div class="card health-tips-card">
+                            <div class="card-header">
+                                <h2>🏥 Health Tips</h2>
+                            </div>
+                            <div class="card-body">
+                                <div id="health-tips-list" class="health-tips-list">
+                                    <div class="empty-state small">
+                                        <p>Record more dreams for health tips</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Stats -->
+                        <div class="card stats-card">
+                            <div class="card-header">
+                                <h2>📊 Quick Stats</h2>
+                            </div>
+                            <div class="card-body">
+                                <div class="quick-stats-horizontal" id="quick-stats">
+                                    <div class="quick-stat">
+                                        <span class="stat-icon">📝</span>
+                                        <span class="stat-number" id="total-dreams">0</span>
+                                        <span class="stat-label">Dreams</span>
+                                    </div>
+                                    <div class="quick-stat">
+                                        <span class="stat-icon">😴</span>
+                                        <span class="stat-number" id="total-sleep">0</span>
+                                        <span class="stat-label">Sleep Logs</span>
+                                    </div>
+                                    <div class="quick-stat">
+                                        <span class="stat-icon">🎭</span>
+                                        <span class="stat-number" id="top-emotion">-</span>
+                                        <span class="stat-label">Top Emotion</span>
+                                    </div>
+                                </div>
+                                <!-- Recommendations moved here -->
+                                <div id="recommendations-list" class="recommendations-list-compact"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Dream Detail Modal -->
+        <div id="dream-modal" class="modal hidden">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>🌙 Dream Analysis</h3>
+                    <button class="modal-close" id="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="modal-date" class="modal-date"></div>
+                    <div class="modal-dream-text" id="modal-dream-text"></div>
+                    <div class="modal-analysis">
+                        <div class="analysis-section">
+                            <h4>Emotion Detected</h4>
+                            <div id="modal-emotion" class="modal-emotion-badge"></div>
+                        </div>
+                        <div class="analysis-section">
+                            <h4>Sentiment</h4>
+                            <div id="modal-sentiment" class="modal-sentiment"></div>
+                        </div>
+                        <div class="analysis-section">
+                            <h4>Keywords</h4>
+                            <div id="modal-keywords" class="modal-keywords"></div>
+                        </div>
+                        <div class="analysis-section" id="modal-health-section">
+                            <h4>💡 What This Means</h4>
+                            <div id="modal-health-insight" class="modal-health-insight"></div>
+                        </div>
+                        <!-- New Psychological Interpretation Section -->
+                        <div class="analysis-section" id="modal-interpretation-section">
+                            <h4>🧠 Psychological Interpretation</h4>
+                            <div id="modal-elements" class="modal-elements"></div>
+                            <div id="modal-overall-interpretation" class="modal-overall-interpretation"></div>
+                            <div id="modal-final-insight" class="modal-final-insight"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="modal-actions">
+                        <button class="btn btn-secondary" id="btn-export-pdf">
+                            <span class="btn-icon">📄</span>
+                            <span>Export PDF</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div id="toast-container" class="toast-container"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>

@@ -13,13 +13,13 @@ def get_emotion_classifier():
     global _emotion_classifier
     if _emotion_classifier is None:
         from transformers import pipeline
-        print("🧠 Loading emotion detection model...")
+        print("Loading emotion detection model...")
         _emotion_classifier = pipeline(
             "text-classification",
             model=EMOTION_MODEL,
             top_k=None  # Return all emotion scores
         )
-        print("✅ Emotion model loaded!")
+        print("Emotion model loaded!")
     return _emotion_classifier
 
 
@@ -69,7 +69,7 @@ def analyze_emotions(text):
                 'confidence': round(primary['score'], 4)
             }
     except Exception as e:
-        print(f"❌ Emotion analysis error: {e}")
+        print(f"Emotion analysis error: {e}")
     
     return {
         'primary_emotion': 'unknown',

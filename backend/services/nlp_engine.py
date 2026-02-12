@@ -2,9 +2,19 @@
 Dream Decoder - NLP Engine
 Main orchestrator for all NLP analysis
 """
-from backend.services.emotion_analyzer import analyze_emotions, get_emotion_description
-from backend.services.sentiment_analyzer import analyze_sentiment, get_sentiment_emoji
-from backend.services.keyword_extractor import extract_keywords, extract_entities, categorize_dream_theme
+try:
+    from backend.services.emotion_analyzer import analyze_emotions, get_emotion_description
+    from backend.services.sentiment_analyzer import analyze_sentiment, get_sentiment_emoji
+    from backend.services.keyword_extractor import extract_keywords, extract_entities, categorize_dream_theme
+except ImportError as e:
+    print(f"CRITICAL ERROR: Failed to import NLP services. {e}")
+    print("This usually means dependencies are not installed correctly.")
+    print("Please run 'setup.bat' to fix the virtual environment.")
+    # Define placeholder functions to avoid NameError if imports fail
+    def _error_handler(*args, **kwargs):
+        raise RuntimeError(f"NLP Engine is not available because of missing dependencies: {e}")
+    analyze_emotions = analyze_sentiment = extract_keywords = extract_entities = categorize_dream_theme = _error_handler
+    get_emotion_description = get_sentiment_emoji = lambda *args: "Unknown"
 
 
 def analyze_dream(text):
@@ -82,7 +92,7 @@ def preload_models():
     Call this on application startup.
     """
     print("=" * 50)
-    print("🚀 Preloading NLP models...")
+    print("Preloading NLP models...")
     print("=" * 50)
     
     # Load each model by calling its getter
@@ -95,5 +105,5 @@ def preload_models():
     get_nlp()
     
     print("=" * 50)
-    print("✅ All models loaded and ready!")
+    print("All models loaded and ready!")
     print("=" * 50)

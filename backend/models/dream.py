@@ -60,122 +60,111 @@ class Dream:
     
     def save(self):
         """Save dream to database (insert or update)."""
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            if self.id is None:
+                # Insert new dream
+                cursor.execute('''
+                    INSERT INTO dreams (content, sentiment, sentiment_score, primary_emotion,
+                                       emotion_scores, keywords, entities, interpretation)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ''', (
+                    self.content,
+                    self.sentiment,
+                    self.sentiment_score,
+                    self.primary_emotion,
+                    json.dumps(self.emotion_scores),
+                    json.dumps(self.keywords),
+                    json.dumps(self.entities),
+                    json.dumps(self.interpretation)
+                ))
+                self.id = cursor.lastrowid
+            else:
+                # Update existing dream
+                cursor.execute('''
+                    UPDATE dreams SET content=?, sentiment=?, sentiment_score=?,
+                           primary_emotion=?, emotion_scores=?, keywords=?, entities=?, interpretation=?
+                    WHERE id=?
+                ''', (
+                    self.content,
+                    self.sentiment,
+                    self.sentiment_score,
+                    self.primary_emotion,
+                    json.dumps(self.emotion_scores),
+                    json.dumps(self.keywords),
+                    json.dumps(self.entities),
+                    json.dumps(self.interpretation),
+                    self.id
+                ))
+            
+            conn.commit()
+            
+            # Get the created_at timestamp
+            if self.created_at is None:
+                cursor.execute('SELECT created_at FROM dreams WHERE id=?', (self.id,))
+                row = cursor.fetchone()
+                if row:
+                    self.created_at = row['created_at']
         
-        if self.id is None:
-            # Insert new dream
-            cursor.execute('''
-                INSERT INTO dreams (content, sentiment, sentiment_score, primary_emotion,
-                                   emotion_scores, keywords, entities, interpretation)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (
-                self.content,
-                self.sentiment,
-                self.sentiment_score,
-                self.primary_emotion,
-                json.dumps(self.emotion_scores),
-                json.dumps(self.keywords),
-                json.dumps(self.entities),
-                json.dumps(self.interpretation)
-            ))
-            self.id = cursor.lastrowid
-        else:
-            # Update existing dream
-            cursor.execute('''
-                UPDATE dreams SET content=?, sentiment=?, sentiment_score=?,
-                       primary_emotion=?, emotion_scores=?, keywords=?, entities=?, interpretation=?
-                WHERE id=?
-            ''', (
-                self.content,
-                self.sentiment,
-                self.sentiment_score,
-                self.primary_emotion,
-                json.dumps(self.emotion_scores),
-                json.dumps(self.keywords),
-                json.dumps(self.entities),
-                json.dumps(self.interpretation),
-                self.id
-            ))
-        
-        conn.commit()
-        
-        # Get the created_at timestamp
-        if self.created_at is None:
-            cursor.execute('SELECT created_at FROM dreams WHERE id=?', (self.id,))
-            row = cursor.fetchone()
-            if row:
-                self.created_at = row['created_at']
-        
-        conn.close()
         return self
     
     @staticmethod
     def get_all(limit=100, offset=0):
         """Get all dreams, ordered by most recent first."""
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        cursor.execute('''
-            SELECT * FROM dreams ORDER BY created_at DESC LIMIT ? OFFSET ?
-        ''', (limit, offset))
-        
-        rows = cursor.fetchall()
-        conn.close()
-        
-        return [Dream.from_row(row) for row in rows]
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                SELECT * FROM dreams ORDER BY created_at DESC LIMIT ? OFFSET ?
+            ''', (limit, offset))
+            
+            rows = cursor.fetchall()
+            return [Dream.from_row(row) for row in rows]
     
     @staticmethod
     def get_by_id(dream_id):
         """Get a dream by ID."""
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        cursor.execute('SELECT * FROM dreams WHERE id=?', (dream_id,))
-        row = cursor.fetchone()
-        conn.close()
-        
-        return Dream.from_row(row)
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            cursor.execute('SELECT * FROM dreams WHERE id=?', (dream_id,))
+            row = cursor.fetchone()
+            return Dream.from_row(row)
     
     @staticmethod
     def delete(dream_id):
         """Delete a dream by ID."""
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        cursor.execute('DELETE FROM dreams WHERE id=?', (dream_id,))
-        deleted = cursor.rowcount > 0
-        
-        conn.commit()
-        conn.close()
-        
-        return deleted
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            cursor.execute('DELETE FROM dreams WHERE id=?', (dream_id,))
+            deleted = cursor.rowcount > 0
+            
+            conn.commit()
+            return deleted
     
     @staticmethod
     def get_recent(days=7):
         """Get dreams from the last N days."""
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        cursor.execute('''
-            SELECT * FROM dreams 
-            WHERE created_at >= datetime('now', '-' || ? || ' days')
-            ORDER BY created_at DESC
-        ''', (days,))
-        
-        rows = cursor.fetchall()
-        conn.close()
-        
-        return [Dream.from_row(row) for row in rows]
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                SELECT * FROM dreams 
+                WHERE created_at >= datetime('now', '-' || ? || ' days')
+                ORDER BY created_at DESC
+            ''', (days,))
+            
+            rows = cursor.fetchall()
+            return [Dream.from_row(row) for row in rows]
     
     @staticmethod
     def count():
         """Get total count of dreams."""
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        cursor.execute('SELECT COUNT(*) as count FROM dreams')
-        row = cursor.fetchone()
-        conn.close()
-        
-        return row['count'] if row else 0
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            cursor.execute('SELECT COUNT(*) as count FROM dreams')
+            row = cursor.fetchone()
+            return row['count'] if row else 0

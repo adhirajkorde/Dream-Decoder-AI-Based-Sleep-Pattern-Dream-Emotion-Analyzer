@@ -11,7 +11,7 @@ from backend.models.sleep import SleepRecord
 # Health recommendations database
 HEALTH_TIPS = {
     'fear': {
-        'title': '🧘 Managing Anxiety & Fear',
+        'title': 'Managing Anxiety & Fear',
         'tips': [
             'Practice progressive muscle relaxation before bed',
             'Try 4-7-8 breathing: inhale 4 sec, hold 7 sec, exhale 8 sec',
@@ -22,7 +22,7 @@ HEALTH_TIPS = {
         'insight': 'Fear-based dreams often reflect daytime anxiety or stress. Your subconscious may be processing unresolved worries.'
     },
     'sadness': {
-        'title': '💙 Emotional Wellness',
+        'title': 'Emotional Wellness',
         'tips': [
             'Practice gratitude journaling - write 3 good things from your day',
             'Ensure adequate sunlight exposure (15-30 min daily)',
@@ -33,7 +33,7 @@ HEALTH_TIPS = {
         'insight': 'Sad dreams may indicate unprocessed emotions or grief. They can actually be healing as your mind works through feelings.'
     },
     'anger': {
-        'title': '🔥 Releasing Tension',
+        'title': 'Releasing Tension',
         'tips': [
             'Physical exercise helps release pent-up frustration',
             'Practice mindfulness to observe anger without reacting',
@@ -44,7 +44,7 @@ HEALTH_TIPS = {
         'insight': 'Anger in dreams often reflects suppressed frustrations. Physical activity and creative outlets can provide healthy release.'
     },
     'joy': {
-        'title': '✨ Maintaining Positivity',
+        'title': 'Maintaining Positivity',
         'tips': [
             'Continue your current wellness practices - they\'re working!',
             'Share your positive dreams with others',
@@ -58,7 +58,7 @@ HEALTH_TIPS = {
 
 SLEEP_HEALTH_TIPS = {
     'poor_quality': {
-        'title': '🛏️ Improve Sleep Quality',
+        'title': 'Improve Sleep Quality',
         'tips': [
             'Keep bedroom temperature between 60-67°F (15-19°C)',
             'Use blackout curtains or an eye mask',
@@ -69,7 +69,7 @@ SLEEP_HEALTH_TIPS = {
         ]
     },
     'short_duration': {
-        'title': '⏰ Getting Enough Sleep',
+        'title': 'Getting Enough Sleep',
         'tips': [
             'Adults need 7-9 hours of sleep per night',
             'Set a bedtime alarm 30 minutes before target sleep time',
@@ -79,7 +79,7 @@ SLEEP_HEALTH_TIPS = {
         ]
     },
     'many_wakeups': {
-        'title': '💤 Reducing Night Wakeups',
+        'title': 'Reducing Night Wakeups',
         'tips': [
             'Avoid liquids 2 hours before bedtime',
             'Check for sleep apnea if you snore frequently',
@@ -89,7 +89,7 @@ SLEEP_HEALTH_TIPS = {
         ]
     },
     'negative_dreams': {
-        'title': '🌙 Reducing Nightmares',
+        'title': 'Reducing Nightmares',
         'tips': [
             'Practice Image Rehearsal Therapy: reimagine bad dreams with positive endings',
             'Keep a dream journal to identify triggers',
@@ -253,7 +253,7 @@ def generate_insights(days=7):
         if avg_quality >= 7 and avg_duration >= 7:
             insights.append({
                 'type': 'positive',
-                'title': 'Great Sleep Health! 🌟',
+                'title': 'Great Sleep Health!',
                 'message': 'You\'re getting quality sleep with enough duration. Keep up the good work!'
             })
     
@@ -290,19 +290,19 @@ def generate_recommendations(emotion_counts, sentiment_counts, sleep_records):
         if emotion == 'fear':
             recommendations.append({
                 'priority': 'high',
-                'title': '🧘 Relaxation Before Bed',
+                'title': 'Relaxation Before Bed',
                 'message': 'Try 10 minutes of deep breathing or meditation before sleep to calm anxiety.'
             })
         elif emotion == 'sadness':
             recommendations.append({
                 'priority': 'medium',
-                'title': '📝 Daytime Journaling',
+                'title': 'Daytime Journaling',
                 'message': 'Write about your feelings during the day to process emotions before they appear in dreams.'
             })
         elif emotion == 'anger':
             recommendations.append({
                 'priority': 'high',
-                'title': '🏃 Physical Activity',
+                'title': 'Physical Activity',
                 'message': 'Exercise earlier in the day to release tension and promote calmer sleep.'
             })
     
@@ -313,7 +313,7 @@ def generate_recommendations(emotion_counts, sentiment_counts, sleep_records):
     if negative_count > positive_count:
         recommendations.append({
             'priority': 'high',
-            'title': '📵 Digital Detox',
+            'title': 'Digital Detox',
             'message': 'Avoid news, social media, and work emails at least 1 hour before bed.'
         })
     
@@ -324,14 +324,14 @@ def generate_recommendations(emotion_counts, sentiment_counts, sleep_records):
         if avg_quality < 6:
             recommendations.append({
                 'priority': 'high',
-                'title': '🌡️ Sleep Environment',
+                'title': 'Sleep Environment',
                 'message': 'Optimize your bedroom: keep it cool (65°F), dark, and quiet.'
             })
     
     # Always include a positive recommendation
     recommendations.append({
         'priority': 'low',
-        'title': '📖 Consistent Dream Logging',
+        'title': 'Consistent Dream Logging',
         'message': 'Record dreams immediately upon waking for more accurate tracking and better insights.'
     })
     
@@ -394,7 +394,7 @@ def get_trends(days=30):
     dreams = Dream.get_recent(days)
     sleep_records = SleepRecord.get_recent(days)
     
-    # Group dreams by date
+    # Group dreams by date and pre-calculate emotion counts
     dream_by_date = {}
     for dream in dreams:
         # Parse the created_at date
@@ -404,8 +404,16 @@ def get_trends(days=30):
             date_str = dream.created_at.strftime('%Y-%m-%d')
         
         if date_str not in dream_by_date:
-            dream_by_date[date_str] = []
-        dream_by_date[date_str].append(dream)
+            dream_by_date[date_str] = {
+                'count': 0,
+                'emotions': {}
+            }
+        
+        day_data = dream_by_date[date_str]
+        day_data['count'] += 1
+        if dream.primary_emotion:
+            emo = dream.primary_emotion
+            day_data['emotions'][emo] = day_data['emotions'].get(emo, 0) + 1
     
     # Group sleep by date
     sleep_by_date = {r.date: r for r in sleep_records}
@@ -421,17 +429,12 @@ def get_trends(days=30):
     
     for date in dates:
         # Emotion data
-        day_dreams = dream_by_date.get(date, [])
-        emotion_data = {
+        day_data = dream_by_date.get(date, {'count': 0, 'emotions': {}})
+        emotion_trends.append({
             'date': date,
-            'count': len(day_dreams),
-            'emotions': {}
-        }
-        for dream in day_dreams:
-            if dream.primary_emotion:
-                emotion_data['emotions'][dream.primary_emotion] = \
-                    emotion_data['emotions'].get(dream.primary_emotion, 0) + 1
-        emotion_trends.append(emotion_data)
+            'count': day_data['count'],
+            'emotions': day_data['emotions']
+        })
         
         # Sleep data
         sleep_record = sleep_by_date.get(date)

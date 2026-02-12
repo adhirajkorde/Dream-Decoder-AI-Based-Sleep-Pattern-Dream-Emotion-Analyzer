@@ -16,20 +16,24 @@ def create_sleep_record():
     if not data:
         return jsonify({'error': 'Request body is required'}), 400
     
-    # Validate required fields
-    if 'date' not in data:
-        return jsonify({'error': 'Date is required'}), 400
-    if 'duration_hours' not in data:
-        return jsonify({'error': 'Duration is required'}), 400
-    
+    # Validate date format
+    try:
+        from datetime import date as dt_date
+        dt_date.fromisoformat(data['date'])
+    except (ValueError, TypeError):
+        return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
+
     # Create sleep record
-    record = SleepRecord(
-        date=data['date'],
-        duration_hours=float(data['duration_hours']),
-        wakeups=int(data.get('wakeups', 0)),
-        quality_rating=int(data['quality_rating']) if data.get('quality_rating') else None,
-        notes=data.get('notes', '')
-    )
+    try:
+        record = SleepRecord(
+            date=data['date'],
+            duration_hours=float(data['duration_hours']),
+            wakeups=int(data.get('wakeups', 0)),
+            quality_rating=int(data['quality_rating']) if data.get('quality_rating') else None,
+            notes=data.get('notes', '')
+        )
+    except (ValueError, TypeError):
+        return jsonify({'error': 'Invalid duration or wakeup count'}), 400
     
     # Check if record already exists for this date
     existing = SleepRecord.get_by_date(data['date'])
@@ -37,9 +41,13 @@ def create_sleep_record():
         # Update existing record
         record.id = existing.id
     
-    record.save()
-    
-    return jsonify(record.to_dict()), 201
+    try:
+        record.save()
+        return jsonify(record.to_dict()), 201
+    except Exception as e:
+        # Log error internally, return sanitized message
+        print(f"Error saving sleep record: {e}")
+        return jsonify({'error': 'Failed to save sleep record'}), 500
 
 
 @sleep_bp.route('/api/sleep', methods=['GET'])

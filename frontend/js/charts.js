@@ -30,17 +30,17 @@ Chart.defaults.font.family = "'Inter', sans-serif";
 function renderEmotionChart(trendData) {
     const ctx = document.getElementById('emotion-chart');
     if (!ctx) return;
-    
+
     // Process data for the chart
     const labels = trendData.map(d => formatDate(d.date));
     const datasets = [];
-    
+
     // Collect all emotions across all days
     const allEmotions = new Set();
     trendData.forEach(day => {
         Object.keys(day.emotions || {}).forEach(e => allEmotions.add(e));
     });
-    
+
     // Create a dataset for each emotion
     allEmotions.forEach(emotion => {
         datasets.push({
@@ -54,7 +54,7 @@ function renderEmotionChart(trendData) {
             pointHoverRadius: 6,
         });
     });
-    
+
     // If no data, show placeholder
     if (datasets.length === 0) {
         datasets.push({
@@ -66,7 +66,7 @@ function renderEmotionChart(trendData) {
             tension: 0.4,
         });
     }
-    
+
     const config = {
         type: 'line',
         data: { labels, datasets },
@@ -110,7 +110,7 @@ function renderEmotionChart(trendData) {
             }
         }
     };
-    
+
     if (emotionChart) {
         emotionChart.data = config.data;
         emotionChart.update();
@@ -125,9 +125,9 @@ function renderEmotionChart(trendData) {
 function renderSleepChart(sleepData) {
     const ctx = document.getElementById('sleep-chart');
     if (!ctx) return;
-    
+
     const labels = sleepData.map(d => formatDate(d.date));
-    
+
     const config = {
         type: 'bar',
         data: {
@@ -203,7 +203,7 @@ function renderSleepChart(sleepData) {
             }
         }
     };
-    
+
     if (sleepChart) {
         sleepChart.data = config.data;
         sleepChart.update();
@@ -218,11 +218,11 @@ function renderSleepChart(sleepData) {
 function renderEmotionPieChart(emotionBreakdown) {
     const ctx = document.getElementById('emotion-pie-chart');
     if (!ctx) return;
-    
+
     const labels = Object.keys(emotionBreakdown).map(capitalize);
     const data = Object.values(emotionBreakdown);
     const colors = Object.keys(emotionBreakdown).map(e => EMOTION_COLORS[e] || '#6b6980');
-    
+
     const config = {
         type: 'doughnut',
         data: {
@@ -243,7 +243,7 @@ function renderEmotionPieChart(emotionBreakdown) {
                     labels: {
                         boxWidth: 12,
                         padding: 15,
-                        generateLabels: function(chart) {
+                        generateLabels: function (chart) {
                             const data = chart.data;
                             if (data.labels.length && data.datasets.length) {
                                 const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
@@ -272,7 +272,7 @@ function renderEmotionPieChart(emotionBreakdown) {
                     padding: 12,
                     cornerRadius: 8,
                     callbacks: {
-                        label: function(context) {
+                        label: function (context) {
                             const total = context.dataset.data.reduce((a, b) => a + b, 0);
                             const percentage = Math.round((context.raw / total) * 100);
                             return `${context.label}: ${context.raw} dreams (${percentage}%)`;
@@ -283,7 +283,7 @@ function renderEmotionPieChart(emotionBreakdown) {
             cutout: '60%',
         }
     };
-    
+
     if (emotionPieChart) {
         emotionPieChart.data = config.data;
         emotionPieChart.update();
@@ -298,7 +298,7 @@ function renderEmotionPieChart(emotionBreakdown) {
 function renderKeywordsCloud(keywords) {
     const container = document.getElementById('keywords-cloud');
     if (!container) return;
-    
+
     if (!keywords || keywords.length === 0) {
         container.innerHTML = `
             <div class="empty-state small">
@@ -307,16 +307,16 @@ function renderKeywordsCloud(keywords) {
         `;
         return;
     }
-    
+
     // Assign sizes based on position (first ones are more frequent)
     const html = keywords.map((keyword, index) => {
         let sizeClass = '';
         if (index < 3) sizeClass = 'large';
         else if (index < 7) sizeClass = 'medium';
-        
-        return `<span class="keyword-cloud-item ${sizeClass}">${keyword}</span>`;
+
+        return `<span class="keyword-cloud-item ${sizeClass}">${escapeHtml(keyword)}</span>`;
     }).join('');
-    
+
     container.innerHTML = html;
 }
 

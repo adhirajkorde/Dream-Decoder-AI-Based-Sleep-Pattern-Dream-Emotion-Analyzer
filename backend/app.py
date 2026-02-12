@@ -71,6 +71,9 @@ def create_app():
     
     @app.errorhandler(500)
     def server_error(e):
+        import traceback
+        print("DEBUG: Internal Server Error")
+        traceback.print_exc()
         return jsonify({'error': 'Internal server error'}), 500
     
     return app
@@ -82,14 +85,14 @@ app = create_app()
 
 if __name__ == '__main__':
     print("=" * 60)
-    print("🌙 Dream Decoder - Starting Server")
+    print("Dream Decoder - Starting Server")
     print("=" * 60)
     
     # Optionally preload models (comment out for faster startup during dev)
     # from backend.services.nlp_engine import preload_models
     # preload_models()
     
-    print(f"\n🚀 Server running at http://localhost:{PORT}")
-    print("📝 Press Ctrl+C to stop\n")
+    print(f"\nServer running at http://localhost:{PORT}")
+    print("Press Ctrl+C to stop\n")
     
     app.run(host=HOST, port=PORT, debug=DEBUG)

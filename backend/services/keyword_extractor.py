@@ -14,22 +14,22 @@ def get_nlp():
     global _nlp
     if _nlp is None:
         import spacy
-        print("🧠 Loading SpaCy language model...")
+        print("Loading SpaCy language model...")
         try:
             _nlp = spacy.load(SPACY_MODEL)
-            print("✅ SpaCy model loaded!")
+            print("SpaCy model loaded!")
         except Exception:
-            print(f"⚠️ SpaCy model '{SPACY_MODEL}' not found. Attempting download...")
+            print(f"SpaCy model '{SPACY_MODEL}' not found. Attempting download...")
             try:
                 import subprocess
                 # Use current executable to ensure we use the venv
                 subprocess.run([sys.executable, '-m', 'spacy', 'download', SPACY_MODEL], check=True)
                 _nlp = spacy.load(SPACY_MODEL)
-                print("✅ SpaCy model downloaded and loaded!")
+                print("SpaCy model downloaded and loaded!")
             except Exception as e:
-                print(f"❌ Failed to download SpaCy model: {e}")
+                print(f"Failed to download SpaCy model: {e}")
                 # Fallback to basic tokenizer if model fails
-                print("⚠️ Falling back to basic tokenization...")
+                print("Falling back to basic tokenization...")
                 from spacy.lang.en import English
                 _nlp = English()
     return _nlp

@@ -50,150 +50,135 @@ class SleepRecord:
     
     def save(self):
         """Save sleep record to database (insert or update)."""
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            if self.id is None:
+                # Insert new record
+                cursor.execute('''
+                    INSERT INTO sleep_records (date, duration_hours, wakeups, quality_rating, notes)
+                    VALUES (?, ?, ?, ?, ?)
+                ''', (
+                    self.date,
+                    self.duration_hours,
+                    self.wakeups,
+                    self.quality_rating,
+                    self.notes
+                ))
+                self.id = cursor.lastrowid
+            else:
+                # Update existing record
+                cursor.execute('''
+                    UPDATE sleep_records SET date=?, duration_hours=?, wakeups=?,
+                           quality_rating=?, notes=?
+                    WHERE id=?
+                ''', (
+                    self.date,
+                    self.duration_hours,
+                    self.wakeups,
+                    self.quality_rating,
+                    self.notes,
+                    self.id
+                ))
+            
+            conn.commit()
+            
+            # Get the created_at timestamp
+            if self.created_at is None:
+                cursor.execute('SELECT created_at FROM sleep_records WHERE id=?', (self.id,))
+                row = cursor.fetchone()
+                if row:
+                    self.created_at = row['created_at']
         
-        if self.id is None:
-            # Insert new record
-            cursor.execute('''
-                INSERT INTO sleep_records (date, duration_hours, wakeups, quality_rating, notes)
-                VALUES (?, ?, ?, ?, ?)
-            ''', (
-                self.date,
-                self.duration_hours,
-                self.wakeups,
-                self.quality_rating,
-                self.notes
-            ))
-            self.id = cursor.lastrowid
-        else:
-            # Update existing record
-            cursor.execute('''
-                UPDATE sleep_records SET date=?, duration_hours=?, wakeups=?,
-                       quality_rating=?, notes=?
-                WHERE id=?
-            ''', (
-                self.date,
-                self.duration_hours,
-                self.wakeups,
-                self.quality_rating,
-                self.notes,
-                self.id
-            ))
-        
-        conn.commit()
-        
-        # Get the created_at timestamp
-        if self.created_at is None:
-            cursor.execute('SELECT created_at FROM sleep_records WHERE id=?', (self.id,))
-            row = cursor.fetchone()
-            if row:
-                self.created_at = row['created_at']
-        
-        conn.close()
         return self
     
     @staticmethod
     def get_all(limit=100, offset=0):
         """Get all sleep records, ordered by most recent first."""
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        cursor.execute('''
-            SELECT * FROM sleep_records ORDER BY date DESC LIMIT ? OFFSET ?
-        ''', (limit, offset))
-        
-        rows = cursor.fetchall()
-        conn.close()
-        
-        return [SleepRecord.from_row(row) for row in rows]
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                SELECT * FROM sleep_records ORDER BY date DESC LIMIT ? OFFSET ?
+            ''', (limit, offset))
+            
+            rows = cursor.fetchall()
+            return [SleepRecord.from_row(row) for row in rows]
     
     @staticmethod
     def get_by_id(record_id):
         """Get a sleep record by ID."""
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        cursor.execute('SELECT * FROM sleep_records WHERE id=?', (record_id,))
-        row = cursor.fetchone()
-        conn.close()
-        
-        return SleepRecord.from_row(row)
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            cursor.execute('SELECT * FROM sleep_records WHERE id=?', (record_id,))
+            row = cursor.fetchone()
+            return SleepRecord.from_row(row)
     
     @staticmethod
     def get_by_date(record_date):
         """Get sleep record for a specific date."""
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        cursor.execute('SELECT * FROM sleep_records WHERE date=?', (record_date,))
-        row = cursor.fetchone()
-        conn.close()
-        
-        return SleepRecord.from_row(row)
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            cursor.execute('SELECT * FROM sleep_records WHERE date=?', (record_date,))
+            row = cursor.fetchone()
+            return SleepRecord.from_row(row)
     
     @staticmethod
     def delete(record_id):
         """Delete a sleep record by ID."""
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        cursor.execute('DELETE FROM sleep_records WHERE id=?', (record_id,))
-        deleted = cursor.rowcount > 0
-        
-        conn.commit()
-        conn.close()
-        
-        return deleted
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            cursor.execute('DELETE FROM sleep_records WHERE id=?', (record_id,))
+            deleted = cursor.rowcount > 0
+            
+            conn.commit()
+            return deleted
     
     @staticmethod
     def get_recent(days=7):
         """Get sleep records from the last N days."""
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        cursor.execute('''
-            SELECT * FROM sleep_records 
-            WHERE date >= date('now', '-' || ? || ' days')
-            ORDER BY date DESC
-        ''', (days,))
-        
-        rows = cursor.fetchall()
-        conn.close()
-        
-        return [SleepRecord.from_row(row) for row in rows]
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                SELECT * FROM sleep_records 
+                WHERE date >= date('now', '-' || ? || ' days')
+                ORDER BY date DESC
+            ''', (days,))
+            
+            rows = cursor.fetchall()
+            return [SleepRecord.from_row(row) for row in rows]
     
     @staticmethod
     def get_average_quality(days=7):
         """Get average sleep quality for the last N days."""
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        cursor.execute('''
-            SELECT AVG(quality_rating) as avg_quality 
-            FROM sleep_records 
-            WHERE date >= date('now', '-' || ? || ' days')
-            AND quality_rating IS NOT NULL
-        ''', (days,))
-        
-        row = cursor.fetchone()
-        conn.close()
-        
-        return row['avg_quality'] if row and row['avg_quality'] else None
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                SELECT AVG(quality_rating) as avg_quality 
+                FROM sleep_records 
+                WHERE date >= date('now', '-' || ? || ' days')
+                AND quality_rating IS NOT NULL
+            ''', (days,))
+            
+            row = cursor.fetchone()
+            return row['avg_quality'] if row and row['avg_quality'] else None
     
     @staticmethod
     def get_average_duration(days=7):
         """Get average sleep duration for the last N days."""
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        cursor.execute('''
-            SELECT AVG(duration_hours) as avg_duration 
-            FROM sleep_records 
-            WHERE date >= date('now', '-' || ? || ' days')
-        ''', (days,))
-        
-        row = cursor.fetchone()
-        conn.close()
-        
-        return row['avg_duration'] if row and row['avg_duration'] else None
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                SELECT AVG(duration_hours) as avg_duration 
+                FROM sleep_records 
+                WHERE date >= date('now', '-' || ? || ' days')
+            ''', (days,))
+            
+            row = cursor.fetchone()
+            return row['avg_duration'] if row and row['avg_duration'] else None

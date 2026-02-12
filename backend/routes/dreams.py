@@ -12,42 +12,55 @@ dreams_bp = Blueprint('dreams', __name__)
 @dreams_bp.route('/api/dreams', methods=['POST'])
 def create_dream():
     """Create a new dream entry with NLP analysis."""
-    data = request.get_json()
-    
-    if not data or 'content' not in data:
-        return jsonify({'error': 'Dream content is required'}), 400
-    
-    content = data['content'].strip()
-    if not content:
-        return jsonify({'error': 'Dream content cannot be empty'}), 400
-    
-    # Perform NLP analysis
-    analysis = analyze_dream(content)
-    
-    # Create dream object
-    dream = Dream(
-        content=content,
-        sentiment=analysis['sentiment'],
-        sentiment_score=analysis['sentiment_score'],
-        primary_emotion=analysis['primary_emotion'],
-        emotion_scores=analysis['emotion_scores'],
-        keywords=analysis['keywords'],
-        entities=analysis['entities'],
-        interpretation=analysis.get('interpretation', {}) # Pass interpretation
-    )
-    
-    # Save to database
-    dream.save()
-    
-    # Return dream with analysis
-    response = dream.to_dict()
-    response['analysis'] = {
-        'themes': analysis['themes'],
-        'summary': analysis['summary'],
-        'emotion_confidence': analysis.get('emotion_confidence', 0)
-    }
-    
-    return jsonify(response), 201
+    try:
+        data = request.get_json()
+        print(f"DEBUG: Received dream data: {data}")
+        
+        if not data or 'content' not in data:
+            return jsonify({'error': 'Dream content is required'}), 400
+        
+        content = data['content'].strip()
+        if not content:
+            return jsonify({'error': 'Dream content cannot be empty'}), 400
+        
+        # Perform NLP analysis
+        print("DEBUG: Starting NLP analysis...")
+        analysis = analyze_dream(content)
+        print("DEBUG: NLP analysis complete.")
+        
+        # Create dream object
+        print("DEBUG: Creating Dream object...")
+        dream = Dream(
+            content=content,
+            sentiment=analysis['sentiment'],
+            sentiment_score=analysis['sentiment_score'],
+            primary_emotion=analysis['primary_emotion'],
+            emotion_scores=analysis['emotion_scores'],
+            keywords=analysis['keywords'],
+            entities=analysis['entities'],
+            interpretation=analysis.get('interpretation', {}) 
+        )
+        
+        # Save to database
+        print("DEBUG: Saving to database...")
+        dream.save()
+        print(f"DEBUG: Saved dream with ID: {dream.id}")
+        
+        # Return dream with analysis
+        response = dream.to_dict()
+        response['analysis'] = {
+            'themes': analysis['themes'],
+            'summary': analysis['summary'],
+            'emotion_confidence': analysis.get('emotion_confidence', 0)
+        }
+        
+        print("DEBUG: Returning successful response.")
+        return jsonify(response), 201
+    except Exception as e:
+        import traceback
+        print(f"ERROR in create_dream: {e}")
+        traceback.print_exc()
+        return jsonify({'error': 'An internal error occurred during dream analysis'}), 500
 
 
 @dreams_bp.route('/api/dreams', methods=['GET'])

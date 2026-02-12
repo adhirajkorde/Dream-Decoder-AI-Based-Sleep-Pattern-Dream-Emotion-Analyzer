@@ -10,9 +10,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATABASE_PATH = os.path.join(BASE_DIR, '..', 'data', 'dream_decoder.db')
 
 # Flask settings
-DEBUG = False
-HOST = '0.0.0.0'
-PORT = 5000
+DEBUG = True
+HOST = os.environ.get('HOST', '0.0.0.0')
+PORT = int(os.environ.get('PORT', 5000))
 
 # CORS settings
 CORS_ORIGINS = ['http://localhost:5000', 'http://127.0.0.1:5000']

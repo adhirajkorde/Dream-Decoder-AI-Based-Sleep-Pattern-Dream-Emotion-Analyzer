@@ -461,17 +461,17 @@ function openDreamModal(dream) {
             elementsEl.innerHTML = ip.numbered_elements.map(el => `
                 <div class="interpretation-element">
                     <div class="element-header">
-                        <span class="element-number">${el.number}</span>
-                        <span class="element-text">${el.element}</span>
+                        <span class="element-number">${escapeHtml(el.number)}</span>
+                        <span class="element-text">${escapeHtml(el.element)}</span>
                     </div>
                     <div class="element-body">
                         <div class="element-insight">
                             <strong>Symbolic Meaning:</strong>
-                            <p>${el.symbolic_meaning}</p>
+                            <p>${escapeHtml(el.symbolic_meaning)}</p>
                         </div>
                         <div class="element-insight">
                             <strong>Subconscious Insight:</strong>
-                            <p>${el.subconscious_insight}</p>
+                            <p>${escapeHtml(el.subconscious_insight)}</p>
                         </div>
                     </div>
                 </div>
@@ -485,7 +485,7 @@ function openDreamModal(dream) {
             overallEl.innerHTML = `
                 <div class="overall-interpretation">
                     <h5>Overall Interpretation</h5>
-                    <p>${ip.overall_interpretation}</p>
+                    <p>${escapeHtml(ip.overall_interpretation)}</p>
                 </div>
             `;
         } else {
@@ -496,7 +496,7 @@ function openDreamModal(dream) {
         if (ip.final_insight) {
             finalEl.innerHTML = `
                 <div class="final-insight">
-                    <p><em>${ip.final_insight}</em></p>
+                    <p><em>${escapeHtml(ip.final_insight)}</em></p>
                 </div>
             `;
         } else {
@@ -778,11 +778,11 @@ function renderHealthTip(tip) {
         <div class="health-tip-card">
             <div class="health-tip-header">
                 <span class="health-tip-icon">${icon}</span>
-                <h4>${tip.title}</h4>
+                <h4>${escapeHtml(tip.title)}</h4>
             </div>
-            ${tip.insight ? `<p class="health-tip-insight">${tip.insight}</p>` : ''}
+            ${tip.insight ? `<p class="health-tip-insight">${escapeHtml(tip.insight)}</p>` : ''}
             <ul class="health-tip-list">
-                ${tip.tips.map(t => `<li>${t}</li>`).join('')}
+                ${tip.tips.map(t => `<li>${escapeHtml(t)}</li>`).join('')}
             </ul>
         </div>
     `;
@@ -796,8 +796,8 @@ function renderRecommendation(rec) {
         rec.priority === 'medium' ? 'priority-medium' : '';
     return `
         <div class="recommendation-item ${priorityClass}">
-            <h4>${rec.title}</h4>
-            <p>${rec.message}</p>
+            <h4>${escapeHtml(rec.title)}</h4>
+            <p>${escapeHtml(rec.message)}</p>
         </div>
     `;
 }
@@ -821,8 +821,8 @@ function renderInsight(insight) {
         <div class="insight-item type-${insight.type}">
             <span class="insight-icon">${icon}</span>
             <div class="insight-content">
-                <h4>${insight.title}</h4>
-                <p>${insight.message}</p>
+                <h4>${escapeHtml(insight.title)}</h4>
+                <p>${escapeHtml(insight.message)}</p>
             </div>
         </div>
     `;
@@ -850,7 +850,7 @@ function showToast(type, message) {
     toast.className = `toast ${type}`;
     toast.innerHTML = `
         <span class="toast-icon">${iconMap[type] || '💡'}</span>
-        <span class="toast-message">${message}</span>
+        <span class="toast-message">${escapeHtml(message)}</span>
         <button class="toast-close">&times;</button>
     `;
 
@@ -1039,14 +1039,6 @@ function formatDateTime(dateStr) {
     });
 }
 
-/**
- * Escape HTML to prevent XSS
- */
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
 
 /**
  * Capitalize first letter of a string

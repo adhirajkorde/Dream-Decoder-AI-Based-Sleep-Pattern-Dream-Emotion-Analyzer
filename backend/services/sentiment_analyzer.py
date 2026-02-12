@@ -13,12 +13,12 @@ def get_sentiment_classifier():
     global _sentiment_classifier
     if _sentiment_classifier is None:
         from transformers import pipeline
-        print("🧠 Loading sentiment analysis model...")
+        print("Loading sentiment analysis model...")
         _sentiment_classifier = pipeline(
             "sentiment-analysis",
             model=SENTIMENT_MODEL
         )
-        print("✅ Sentiment model loaded!")
+        print("Sentiment model loaded!")
     return _sentiment_classifier
 
 
@@ -72,7 +72,7 @@ def analyze_sentiment(text):
                 'score': round(score, 4)
             }
     except Exception as e:
-        print(f"❌ Sentiment analysis error: {e}")
+        print(f"Sentiment analysis error: {e}")
     
     return {
         'sentiment': 'neutral',
@@ -83,8 +83,8 @@ def analyze_sentiment(text):
 def get_sentiment_emoji(sentiment):
     """Get emoji representation of sentiment."""
     emojis = {
-        'positive': '😊',
-        'negative': '😔',
-        'neutral': '😐'
+        'positive': '[Positive]',
+        'negative': '[Negative]',
+        'neutral': '[Neutral]'
     }
-    return emojis.get(sentiment, '❓')
+    return emojis.get(sentiment, '[Unknown]')

@@ -1,0 +1,38 @@
+C:\Users\ADHIRAJ KORDE\AppData\Local\Programs\Python\Python310\lib\site-packages\huggingface_hub\file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+C:\Users\ADHIRAJ KORDE\AppData\Local\Programs\Python\Python310\lib\site-packages\huggingface_hub\file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+Collecting https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz
+  ERROR: HTTP error 404 while getting https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz
+
+[notice] A new release of pip is available: 25.3 -> 26.0.1
+[notice] To update, run: python.exe -m pip install --upgrade pip
+ERROR: Could not install requirement https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz because of HTTP error 404 Client Error: Not Found for url: https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz for URL https://github.com/explosion/spacy-models/releases/download/-en_core_web_sm/-en_core_web_sm.tar.gz
+Traceback (most recent call last):
+  File "C:\Users\ADHIRAJ KORDE\OneDrive\Desktop\Dream-Decoder-AI-Based-Sleep-Pattern-Dream-Emotion-Analyzer\verify_upgrades.py", line 69, in <module>
+    test_flying_car()
+  File "C:\Users\ADHIRAJ KORDE\OneDrive\Desktop\Dream-Decoder-AI-Based-Sleep-Pattern-Dream-Emotion-Analyzer\verify_upgrades.py", line 15, in test_flying_car
+    result = analyze_dream(dream_text)
+  File "C:\Users\ADHIRAJ KORDE\OneDrive\Desktop\Dream-Decoder-AI-Based-Sleep-Pattern-Dream-Emotion-Analyzer\backend\services\nlp_engine.py", line 87, in analyze_dream
+    keywords = extract_keywords(text)
+  File "C:\Users\ADHIRAJ KORDE\OneDrive\Desktop\Dream-Decoder-AI-Based-Sleep-Pattern-Dream-Emotion-Analyzer\backend\services\keyword_extractor.py", line 68, in extract_keywords
+    for chunk in doc.noun_chunks:
+  File "spacy\tokens\doc.pyx", line 908, in noun_chunks
+  File "C:\Users\ADHIRAJ KORDE\AppData\Local\Programs\Python\Python310\lib\site-packages\spacy\lang\en\syntax_iterators.py", line 26, in noun_chunks
+    raise ValueError(Errors.E029)
+ValueError: [E029] `noun_chunks` requires the dependency parse, which requires a statistical model to be installed and loaded. For more info, see the documentation:
+https://spacy.io/usage/models
+
+==================================================
+TEST CASE: FLYING CAR DREAM
+==================================================
+Loading emotion detection model...
+Emotion model loaded!
+Loading sentiment analysis model...
+Sentiment model loaded!
+Loading SpaCy language model...
+SpaCy model 'en_core_web_sm' not found. Attempting download...
+Failed to download SpaCy model: Command '['C:\\Users\\ADHIRAJ KORDE\\AppData\\Local\\Programs\\Python\\Python310\\python.exe', '-m', 'spacy', 'download', 'en_core_web_sm']' returned non-zero exit status 1.
+Falling back to basic tokenization...
+An error occurred during verification: [E029] `noun_chunks` requires the dependency parse, which requires a statistical model to be installed and loaded. For more info, see the documentation:
+https://spacy.io/usage/models

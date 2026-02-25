@@ -1,199 +1,262 @@
 """
-Dream Decoder - Dream Interpreter Service
-Provides deep psychological and symbolic analysis of dream content.
+Dream Decoder - Multilingual Dream Interpreter Service
+Provides deep psychological and symbolic analysis of dream content in multiple languages.
 """
 import re
+from backend.services.language_detector import detect_with_fallback
+from backend.services.dream_symbols import find_symbols_in_text
+from backend.services.translations import get_interpretation_template
 
-# Comprehensive Symbol Database
-SYMBOL_DATABASE = {
-    'water': {
-        'symbolic': 'Represents the emotional state and the flow of the subconscious mind.',
-        'subconscious': 'The clarity or turbulence of the water suggests how you are currently processing your feelings.'
+
+# Multilingual interpretation templates
+INTERPRETATION_TEMPLATES = {
+    'en': {
+        'intro': "Your dream weaves together symbols of {symbols} with a strong {emotion} emotional undercurrent.",
+        'mid_positive': "The interaction of these elements reflects a positive emotional state in your dream.",
+        'mid_negative': "The interaction of these elements reflects an area of emotional challenge in your dream.",
+        'mid_neutral': "The interaction of these elements suggests a period of observation and balance.",
+        'closing': "Your subconscious highlights these specific details to help you process your experiences.",
+        'no_elements': "This dream reflects your current mental state, primarily characterized by a {emotion} tone.",
+        'insight_fear': "Your mind is safely processing these anxieties while you sleep. You have the strength to navigate these feelings.",
+        'insight_joy': "Your subconscious is capturing a moment of positivity. Carry this energy with you.",
+        'insight_sadness': "Allow yourself to process these emotions. This dream is a step toward emotional clarity.",
+        'insight_default': "Reflect on these symbols as they appear in your dream. Your inner mind is processing your daily experiences."
     },
-    'flying': {
-        'symbolic': 'A symbol of liberation, release, and rising above current circumstances.',
-        'subconscious': 'Indicates a desire for freedom or a sense of achievement and empowerment.'
+    'hi': {
+        'intro': "आपका स्वप्न {symbols} के प्रतीकों को एक मजबूत {emotion} भावनात्मक धारा के साथ बुनता है।",
+        'mid_positive': "इन तत्वों की परस्पर क्रिया आपके सपने में एक सकारात्मक भावनात्मक स्थिति को दर्शाती है।",
+        'mid_negative': "इन तत्वों की परस्पर क्रिया आपके सपने में भावनात्मक चुनौती के क्षेत्र को दर्शाती है।",
+        'mid_neutral': "इन तत्वों की परस्पर क्रिया अवलोकन और संतुलन की अवधि का सुझाव देती है।",
+        'closing': "आपका अवचेतन आपके अनुभवों को संसाधित करने में मदद करने के लिए इन विशिष्ट विवरणों को उजागर करता है।",
+        'no_elements': "यह सपना आपकी वर्तमान मानसिक स्थिति को दर्शाता है, जो मुख्य रूप से {emotion} स्वर द्वारा विशेषता है।",
+        'insight_fear': "जब आप सोते हैं तो आपका मन इन चिंताओं को सुरक्षित रूप से संसाधित कर रहा होता है। आपके पास इन भावनाओं को नेविगेट करने की ताकत है।",
+        'insight_joy': "आपका अवचेतन सकारात्मकता के क्षण को कैद कर रहा है। इस ऊर्जा को अपने साथ रखें।",
+        'insight_sadness': "स्वयं को इन भावनाओं को संसाधित करने दें। यह सपना भावनात्मक स्पष्टता की दिशा में एक कदम है।",
+        'insight_default': "इन प्रतीकों पर विचार करें जैसे वे आपके सपने में दिखाई देते हैं। आपका आंतरिक मन आपके दैनिक अनुभवों को संसाधित कर रहा है।"
     },
-    'falling': {
-        'symbolic': 'Represents a loss of control, insecurity, or a fear of failure.',
-        'subconscious': 'Suggests you might be feeling overwhelmed or unsupported in some area of your waking life.'
+    'mr': {
+        'intro': "तुमचे स्वप्न {symbols} च्या प्रतीकांना एका मजबूत {emotion} भावनिक प्रवाहासह विणते.",
+        'mid_positive': "या घटकांचा परस्परसंवाद तुमच्या स्वप्नातील सकारात्मक भावनिक स्थिती दर्शवतो.",
+        'mid_negative': "या घटकांचा परस्परसंवाद तुमच्या स्वप्नातील भावनिक आव्हानाचे क्षेत्र दर्शवतो.",
+        'mid_neutral': "या घटकांचा परस्परसंवाद निरीक्षण आणि संतुलनाचा काळ सूचित करतो.",
+        'closing': "तुमचे अवचेतन तुमचे अनुभव प्रक्रिया करण्यासाठी हे विशिष्ट तपशील हायलाइट करते.",
+        'no_elements': "हे स्वप्न तुमच्या सध्याच्या मानसिक स्थितीचे प्रतिबिंब आहे, जे प्रामुख्याने {emotion} स्वराद्वारे वैशिष्ट्यीकृत आहे.",
+        'insight_fear': "तुम्ही झोपलेले असताना तुमचे मन या चिंतांवर सुरक्षितपणे प्रक्रिया करत आहे. या भावनांना सामोरे जाण्याची ताकद तुमच्यात आहे.",
+        'insight_joy': "तुमचे अवचेतन सकारात्मकतेचा एक क्षण कॅप्चर करत आहे. ही ऊर्जा तुमच्यासोबत ठेवा.",
+        'insight_sadness': "स्वत स्वतःला या भावनांवर प्रक्रिया करण्याची परवानगी द्या. हे स्वप्न भावनिक स्पष्टतेच्या दिशेने एक पाऊल आहे.",
+        'insight_default': "तुमच्या स्वप्नात दिसणाऱ्या या प्रतीकांवर विचार करा. तुमचे आंतरिक मन तुमच्या दैनंदिन अनुभवांवर प्रक्रिया करत आहे."
     },
-    'chased': {
-        'symbolic': 'Symbolizes avoidance of a situation or emotion that needs to be addressed.',
-        'subconscious': 'The "pursuer" often represents a part of yourself or a responsibility you are trying to escape.'
-    },
-    'house': {
-        'symbolic': 'Represents the self or the structure of your own mind and personality.',
-        'subconscious': 'Different rooms can represent different aspects of your life (e.g., attic for thoughts, basement for hidden fears).'
-    },
-    'forest': {
-        'symbolic': 'A place of mystery, the unconscious, or a state of confusion.',
-        'subconscious': 'Suggests you are navigating unfamiliar territory within your own psyche or life path.'
-    },
-    'bridge': {
-        'symbolic': 'Symbolizes transition, change, or connecting two different states of being.',
-        'subconscious': 'Indicates you are in the middle of a significant life shift or trying to overcome a gap.'
-    },
-    'death': {
-        'symbolic': 'Represents transformation, endings, and the birth of something new.',
-        'subconscious': 'Not a literal prediction, but a sign that an old way of thinking or living is making way for growth.'
-    },
-    'teeth': {
-        'symbolic': 'Often related to communication, self-image, and personal power.',
-        'subconscious': 'Losing teeth frequently indicates anxiety about how you are perceived or a fear of losing influence.'
-    },
-    'snake': {
-        'symbolic': 'A complex symbol representing healing, transformation, or a hidden threat.',
-        'subconscious': 'Can suggest a process of shedding old habits or dealing with a person you perceive as untrustworthy.'
-    },
-    'fire': {
-        'symbolic': 'Represents passion, anger, destruction, or purification and rebirth.',
-        'subconscious': 'The context of the fire shows whether you are feeling consumed by an emotion or energized by it.'
-    },
-    'mountain': {
-        'symbolic': 'Symbolizes challenges, goals, and the perspective gained through effort.',
-        'subconscious': 'Suggests you are focused on an upcoming milestone or seeking a "higher" view of a situation.'
-    },
-    'people': {
-        'symbolic': 'Often represent different facets of the dreamer\'s own personality.',
-        'subconscious': 'The traits of the person in the dream are usually qualities you are currently integrating or confronting in yourself.'
-    },
-    'ocean': {
-        'symbolic': 'The vast, deep expanse of the collective unconscious and deep-seated emotions.',
-        'subconscious': 'A calm ocean indicates inner peace, while a stormy one suggests emotional turmoil.'
-    },
-    'door': {
-        'symbolic': 'Represents new opportunities or barriers depending on whether it is open or closed.',
-        'subconscious': 'Suggests your readiness (or hesitation) to enter a new phase of life or explore hidden ideas.'
-    },
-    'car': {
-        'symbolic': 'Represents the direction of your life and how much control you feel you have over it.',
-        'subconscious': 'Being in the driver\'s seat shows agency; being a passenger suggests you feel others are in control.'
+    'hinglish': {
+        'intro': "Aapka dream {symbols} ke symbols ko ek strong {emotion} emotional undercurrent ke saath weave karta hai.",
+        'mid_positive': "In elements ki interaction aapke dream mein ek positive emotional state ko reflect karti hai.",
+        'mid_negative': "In elements ki interaction aapke dream mein emotional challenge ke area ko reflect karti hai.",
+        'mid_neutral': "In elements ki interaction observation aur balance ka phase suggest karti hai.",
+        'closing': "Aapka subconscious aapke experiences ko process karne mein help karne ke liye in specific details ko highlight kar raha hai.",
+        'no_elements': "Ye dream aapki current mental state ka reflection hai, jo primarily {emotion} tone se characterized hai.",
+        'insight_fear': "Aapka mind sote waqt in anxieties ko safely process kar raha hai. Aapke paas in feelings ko navigate karne ki strength hai.",
+        'insight_joy': "Aapka subconscious positivity ke ek moment ko capture kar raha hai. Is energy ko apne saath rakho.",
+        'insight_sadness': "Apne aap ko in emotions ko process karne ki ijazat do. Ye dream emotional clarity ki direction mein ek step hai.",
+        'insight_default': "In symbols par reflect karo jaise ye aapke dream mein appear hote hain. Aapka inner mind aapke daily experiences ko process kar raha hai."
     }
 }
 
-def interpret_dream(text, nlp_analysis):
+
+# Emotion categories
+POSITIVE_EMOTIONS = {'joy', 'love', 'surprise'}
+NEGATIVE_EMOTIONS = {'fear', 'sadness', 'anger'}
+FEAR_THEMES = {'fear', 'anxiety', 'chase', 'falling', 'flood', 'spider', 'snake', 'darkness', 'exam', 'teeth_falling', 'late'}
+
+def interpret_dream(text, nlp_analysis, user_language='en'):
     """
-    Generate a structured psychological interpretation of the dream.
-    
-    Args:
-        text: Original dream description
-        nlp_analysis: Dict containing 'keywords', 'entities', 'emotion', 'sentiment'
-        
-    Returns:
-        Dict with interpretation structure
+    Generate a structured psychological interpretation with consistency checks.
     """
-    keywords = nlp_analysis.get('keywords', [])
-    entities = nlp_analysis.get('entities', [])
+    # Detect language with fallback to user preference
+    detected_lang, lang_conf, used_fallback = detect_with_fallback(text, user_language)
+    interpretation_lang = detected_lang
     
-    # 1. Extract and Analyze Elements
-    elements = _extract_elements(text, keywords, entities)
-    numbered_elements = []
+    # Find symbols in the dream text
+    found_symbols = find_symbols_in_text(text, interpretation_lang)
     
-    for i, element_text in enumerate(elements, 1):
-        matching_symbol = _find_matching_symbol(element_text)
+    # 0. Consistency & Polarity Reinforcement
+    emo_data = nlp_analysis.get('emotion', {})
+    primary_emotion = emo_data.get('primary_emotion', 'neutral')
+    emo_confidence = emo_data.get('confidence', 0)
+    
+    sentiment_data = nlp_analysis.get('sentiment', {})
+    sentiment_label = sentiment_data.get('sentiment')
+    sent_confidence = sentiment_data.get('score', 0)
+    
+    # Calculate symbol-based counts and polarity
+    symbol_score = 0
+    symbol_emotions = {}
+    for s in found_symbols:
+        symbol_score += s.get('polarity', 0) * s.get('weight', 1)
+        s_emo = s.get('emotion', 'neutral')
+        symbol_emotions[s_emo] = symbol_emotions.get(s_emo, 0) + s.get('weight', 1)
+
+    # HOUSE GUARD: Protection for literal dreams
+    is_house_mention = any(h in text.lower() for h in ['home', 'house', 'ghar', '\u0918\u0930'])
+    is_lone_house = is_house_mention and symbol_score < 0.5
+    
+    # EMOTION REINFORCEMENT
+    final_emotion = primary_emotion
+    if emo_confidence < 0.4 or primary_emotion == 'neutral' or (symbol_emotions.get(primary_emotion, 0) == 0 and symbol_emotions):
+        if symbol_emotions and not is_lone_house:
+            best_symbol_emo = max(symbol_emotions.items(), key=lambda x: x[1])[0]
+            if best_symbol_emo != 'neutral' and symbol_emotions[best_symbol_emo] >= 2:
+                final_emotion = best_symbol_emo
+
+    # SENTIMENT REINFORCEMENT (The "Voting" System)
+    final_sentiment = sentiment_label
+    
+    if not is_lone_house:
+        # Rule 1: Joy/Love are powerful indicators. Force positive unless model is 98%+ sure of negative.
+        if final_emotion in POSITIVE_EMOTIONS and final_sentiment != 'positive':
+            if symbol_score >= -1 or sent_confidence < 0.98:
+                final_sentiment = 'positive'
+
+        # Rule 2: Symbols represent the core subconscious content. 
+        # Strong positive symbols override Model's negative/neutral findings.
+        if symbol_score >= 1.5 and final_sentiment != 'positive':
+            if sent_confidence < 0.95:
+                final_sentiment = 'positive'
         
-        if matching_symbol:
-            symbol_data = SYMBOL_DATABASE[matching_symbol]
-            symbolic_meaning = symbol_data['symbolic']
-            subconscious_insight = symbol_data['subconscious']
-        else:
-            # Generic interpretation if no specific symbol matches
-            symbolic_meaning = "This element represents a focal point of your subconscious attention within this dream sequence."
-            subconscious_insight = "It suggests your mind is currently processing this specific detail as it relates to your personal context."
+        # Rule 3: Scary/Negative symbols are critical warnings. 
+        # Override positive/neutral if any strong negative symbols are present.
+        if symbol_score <= -1.5 and final_sentiment != 'negative':
+            if sent_confidence < 0.95:
+                final_sentiment = 'negative'
+    
+    # Rule 4: Handle "Neutral" correctly
+    # If the transformer is low/mid confidence and primary emotion is neutral, force neutral
+    if final_emotion == 'neutral' and final_sentiment != 'neutral':
+        if sent_confidence < 0.85 and abs(symbol_score) < 1.0:
+            final_sentiment = 'neutral'
             
+    # Lone House Final Force
+    if is_lone_house and abs(symbol_score) < 0.5:
+        final_emotion = 'neutral'
+        final_sentiment = 'neutral'
+    
+    # IMPORTANT: Update nlp_analysis in-place so nlp_engine returns reinforced labels
+    emo_data['primary_emotion'] = final_emotion
+    nlp_analysis['emotion'] = emo_data
+    sentiment_data['sentiment'] = final_sentiment
+    nlp_analysis['sentiment'] = sentiment_data
+    
+    found_symbols.sort(key=lambda x: (x.get('weight', 1), len(x['keyword'])), reverse=True)
+    
+    # Extract elements from NLP analysis
+    keywords = nlp_analysis.get('keywords', [])
+    
+    # Build numbered elements
+    numbered_elements = []
+    for i, symbol_data in enumerate(found_symbols[:5], 1):
         numbered_elements.append({
             'number': i,
-            'element': element_text.capitalize(),
-            'symbolic_meaning': symbolic_meaning,
-            'subconscious_insight': subconscious_insight
+            'element': symbol_data['keyword'].capitalize(),
+            'symbolic_meaning': symbol_data['meaning'],
+            'subconscious_insight': symbol_data['interpretation'],
+            'weight': symbol_data.get('weight', 1),
+            'emotion': symbol_data.get('emotion', 'neutral')
         })
-        
-    # 2. Overall Interpretation
-    overall_interpretation = _generate_overall_interpretation(numbered_elements, nlp_analysis)
     
-    # 3. Final Insight
-    final_insight = _generate_final_insight(overall_interpretation, nlp_analysis)
+    if not numbered_elements and keywords:
+        for i, keyword in enumerate(keywords[:3], 1):
+            numbered_elements.append({
+                'number': i,
+                'element': keyword.capitalize(),
+                'symbolic_meaning': _get_generic_meaning(interpretation_lang),
+                'subconscious_insight': _get_generic_insight(interpretation_lang),
+                'weight': 1,
+                'emotion': 'neutral'
+            })
+    
+    overall_interpretation = _generate_overall_interpretation(
+        numbered_elements, final_emotion, final_sentiment, keywords, interpretation_lang
+    )
+    
+    # Generate final insight
+    final_insight = _generate_final_insight(final_emotion, interpretation_lang)
     
     return {
         'numbered_elements': numbered_elements,
         'overall_interpretation': overall_interpretation,
-        'final_insight': final_insight
+        'final_insight': final_insight,
+        'detected_language': detected_lang,
+        'language_confidence': lang_conf,
+        'interpretation_language': interpretation_lang
     }
 
-def _extract_elements(text, keywords, entities):
-    """Break dream into key scenes/elements using NLP help."""
-    # Split into sentences as a base for scenes
-    sentences = [s.strip() for s in re.split(r'[.!?]+', text) if s.strip()]
-    
-    # Combine keywords and entities to find significant phrases
-    focal_points = keywords[:5] + [e['text'] for e in entities[:3]]
-    
-    elements = []
-    seen_elements = set()
-    
-    # Strategy: Find sentences that contain major focal points
-    for sentence in sentences:
-        for fp in focal_points:
-            if fp.lower() in sentence.lower():
-                # Extract a concise version of the scene
-                # If the sentence is too long, we might just use the focal point in context
-                if len(sentence) > 100:
-                    element = f"The presence of {fp}"
-                else:
-                    element = sentence
-                
-                if element.lower() not in seen_elements:
-                    elements.append(element)
-                    seen_elements.add(element.lower())
-                break
-    
-    # Fallback if no focal points found in sentences
-    if not elements and focal_points:
-        elements = [f"The element of {fp}" for fp in focal_points[:3]]
-    elif not elements and sentences:
-        elements = sentences[:3]
-    
-    return elements[:5] # Limit to top 5 elements
 
-def _find_matching_symbol(text):
-    """Find a symbol from our database within the given text."""
-    text_lower = text.lower()
-    for symbol in SYMBOL_DATABASE:
-        if symbol in text_lower:
-            return symbol
-    return None
+def _get_generic_meaning(lang_code):
+    """Get professional generic meaning for non-symbol keywords."""
+    meanings = {
+        'en': "This element represents a focal point of your subconscious attention, acting as a bridge between your internal thoughts and outward reality.",
+        'hi': "यह तत्व आपके अवचेतन ध्यान के एक केंद्र बिंदु का प्रतिनिधित्व करता है, जो आपके आंतरिक विचारों और बाहरी वास्तविकता के बीच एक सेतु के रूप में कार्य करता है।",
+        'mr': "हा घटक तुमच्या सुप्त मनाच्या एका केंद्रबिंदूचे प्रतिनिधित्व करतो, जो तुमच्या अंतर्गत विचारांना आणि बाह्य वास्तवाला जोडणारा दुवा म्हणून काम करतो.",
+        'hinglish': "Ye element aapke subconscious dhyan ka ek focal point represent karta hai, jo aapke internal thoughts aur reality ke beech ek bridge ki tarah kaam karta hai."
+    }
+    return meanings.get(lang_code, meanings['en'])
 
-def _generate_overall_interpretation(elements, nlp_analysis):
-    """Combine analysis into a cohesive narrative."""
-    emotion = nlp_analysis.get('emotion', {}).get('primary_emotion', 'neutral')
-    sentiment = nlp_analysis.get('sentiment', {}).get('sentiment', 'neutral')
+
+def _get_generic_insight(lang_code):
+    """Get professional generic insight for non-symbol keywords."""
+    insights = {
+        'en': "The appearance of this detail suggests that your mind is organizing impressions from your daily life into a meaningful psychological pattern.",
+        'hi': "इस विवरण की उपस्थिति बताती है कि आपका मन आपके दैनिक जीवन के प्रभावों को एक सार्थक मनोवैज्ञानिक पैटर्न में व्यवस्थित कर रहा है।",
+        'mr': "या तपशीलाचे स्वरूप सूचित करते की तुमचे मन तुमच्या दैनंदिन जीवनातील छापांना एका अर्थपूर्ण मनोवैज्ञानिक नमुन्यात व्यवस्थित करत आहे.",
+        'hinglish': "Is detail ka dikhna suggest karta hai ki aapka mind daily life ke impressions ko ek meaningful psychological pattern mein organize kar raha hai."
+    }
+    return insights.get(lang_code, insights['en'])
+
+
+def _generate_overall_interpretation(elements, emotion, sentiment, keywords, lang_code):
+    """Combine analysis into a specific context-aware narrative."""
+    templates = INTERPRETATION_TEMPLATES.get(lang_code, INTERPRETATION_TEMPLATES['en'])
+    
+    keywords_set = set([k.lower() for k in keywords])
     
     if not elements:
-        return "This dream seems to be a subtle reflection of your current mental state, characterized by a {} emotional tone.".format(emotion)
+        return templates['no_elements'].format(emotion=emotion)
     
-    intro = "Your dream weaves together symbols of {} with a strong {} emotional undercurrent.".format(
-        ", ".join([e['element'].lower() for e in elements[:2]]),
-        emotion
-    )
+    # Get symbol names for intro
+    primary_symbols = ", ".join([e['element'].lower() for e in elements[:2]])
+    intro = templates['intro'].format(symbols=primary_symbols, emotion=emotion)
     
-    mid = "The interaction of these elements suggests you are currently navigating a phase of {}.".format(
-        "inner growth" if sentiment == 'positive' else "inner conflict" if sentiment == 'negative' else "reflection"
-    )
+    # conflict context detection
+    has_fear_context = any(kw in FEAR_THEMES for kw in keywords_set) or \
+                      any(e.get('emotion') == 'fear' for e in elements)
     
-    closing = "Ultimately, your subconscious is bringing these specific details to your attention to help you process your experiences."
+    # Core Logic for section selection
+    if emotion in POSITIVE_EMOTIONS and not has_fear_context:
+        mid = templates['mid_positive']
+    elif emotion in NEGATIVE_EMOTIONS or has_fear_context:
+        mid = templates['mid_negative']
+    elif sentiment == 'positive':
+        mid = templates['mid_positive']
+    elif sentiment == 'negative':
+        mid = templates['mid_negative']
+    else:
+        mid = templates['mid_neutral']
     
-    return f"{intro} {mid} {closing}"
+    # Ensure interpretation is never empty or "weak"
+    narrative = f"{intro} {mid} {templates['closing']}"
+    if len(narrative) < 100: # Extra padding for completeness
+         narrative += f" {templates['intro'].split('{symbols}')[0].strip()} elements often surface during times of mental processing."
+         
+    return narrative
 
-def _generate_final_insight(interpretation, nlp_analysis):
-    """Create a gentle reflective message."""
-    emotion = nlp_analysis.get('emotion', {}).get('primary_emotion', 'neutral')
+
+def _generate_final_insight(emotion, lang_code):
+    """Create a gentle reflective message in the specified language."""
+    templates = INTERPRETATION_TEMPLATES.get(lang_code, INTERPRETATION_TEMPLATES['en'])
     
     if emotion == 'fear':
-        return "Take comfort in knowing that your mind is safely processing these anxieties while you sleep. You have the strength to face what's chasing you."
-    elif emotion == 'joy':
-        return "Your subconscious is celebrating your current path. Carry this positive energy with you into your waking hours."
+        return templates['insight_fear']
+    elif emotion == 'joy' or emotion == 'love':
+        return templates['insight_joy']
     elif emotion == 'sadness':
-        return "Allow yourself the grace to feel these emotions. This dream is a step toward healing and emotional release."
+        return templates['insight_sadness']
     else:
-        return "Trust your intuition as you reflect on these symbols. Your inner self is a wise guide on your journey of growth."
+        return templates['insight_default']

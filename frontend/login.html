@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream Decoder - Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+
+<body class="auth-page">
+    <div class="auth-bg-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+    </div>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>🌙 Dream Decoder</h1>
+                <p>Unlock the secrets of your subconscious</p>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form">
+                <h2 data-i18n="auth_welcome">Welcome Back</h2>
+
+                <div class="form-group">
+                    <label for="loginUsername" data-i18n="auth_username">Username or Email</label>
+                    <input type="text" id="loginUsername" name="username" required autocomplete="username"
+                        data-i18n-placeholder="auth_username_placeholder" placeholder="Enter your username or email">
+                </div>
+
+                <div class="form-group">
+                    <label for="loginPassword" data-i18n="auth_password">Password</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="loginPassword" name="password" required
+                            autocomplete="current-password" data-i18n-placeholder="auth_password_placeholder"
+                            placeholder="Enter your password">
+                        <button type="button" class="toggle-password" data-target="loginPassword"
+                            title="Toggle password visibility">
+                            <span class="eye-icon">👁️</span>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    <span class="btn-text" data-i18n="btn_login">Log In</span>
+                    <span class="btn-loader" style="display: none;" data-i18n="auth_logging_in">Logging in...</span>
+                </button>
+
+                <p class="auth-switch">
+                    <span data-i18n="auth_no_account">Don't have an account?</span>
+                    <a href="#" id="showSignup" data-i18n="auth_to_signup">Sign up here</a>
+                </p>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signupForm" class="auth-form" style="display: none;">
+                <h2 data-i18n="auth_create_account">Create Account</h2>
+
+                <div class="form-group">
+                    <label for="signupUsername" data-i18n="auth_username">Username</label>
+                    <input type="text" id="signupUsername" name="username" required autocomplete="username"
+                        data-i18n-placeholder="auth_signup_username_hint"
+                        placeholder="Choose a username (3-20 characters)" pattern="[a-zA-Z0-9_]{3,20}">
+                    <small data-i18n="auth_username_hint">Letters, numbers, and underscores only</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="signupEmail" data-i18n="auth_email">Email</label>
+                    <input type="email" id="signupEmail" name="email" required autocomplete="email"
+                        data-i18n-placeholder="auth_email_placeholder" placeholder="Enter your email">
+                </div>
+
+                <div class="form-group">
+                    <label for="signupPassword" data-i18n="auth_password">Password</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="signupPassword" name="password" required autocomplete="new-password"
+                            data-i18n-placeholder="auth_password_placeholder" placeholder="Create a strong password"
+                            minlength="8">
+                        <button type="button" class="toggle-password" data-target="signupPassword"
+                            title="Toggle password visibility">
+                            <span class="eye-icon">👁️</span>
+                        </button>
+                    </div>
+                    <small data-i18n="auth_password_hint">At least 8 characters, 1 uppercase, 1 lowercase, 1
+                        number</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="signupConfirmPassword" data-i18n="auth_confirm_password">Confirm Password</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="signupConfirmPassword" name="confirmPassword" required
+                            autocomplete="new-password" data-i18n-placeholder="auth_confirm_password_placeholder"
+                            placeholder="Re-enter your password">
+                        <button type="button" class="toggle-password" data-target="signupConfirmPassword"
+                            title="Toggle password visibility">
+                            <span class="eye-icon">👁️</span>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    <span class="btn-text" data-i18n="btn_signup">Sign Up</span>
+                    <span class="btn-loader" style="display: none;" data-i18n="auth_creating_account">Creating
+                        account...</span>
+                </button>
+
+                <p class="auth-switch">
+                    <span data-i18n="auth_has_account">Already have an account?</span>
+                    <a href="#" id="showLogin" data-i18n="auth_to_login">Log in here</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/i18n.js"></script>
+    <script>
+        // Form switching
+        document.getElementById('showSignup').addEventListener('click', (e) => {
+            e.preventDefault();
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+
+            loginForm.style.opacity = '0';
+            setTimeout(() => {
+                loginForm.style.display = 'none';
+                signupForm.style.display = 'block';
+                signupForm.style.opacity = '1';
+            }, 200);
+        });
+
+        document.getElementById('showLogin').addEventListener('click', (e) => {
+            e.preventDefault();
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+
+            signupForm.style.opacity = '0';
+            setTimeout(() => {
+                signupForm.style.display = 'none';
+                loginForm.style.display = 'block';
+                loginForm.style.opacity = '1';
+            }, 200);
+        });
+
+        // Login form submission
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            const btnText = btn.querySelector('.btn-text');
+            const btnLoader = btn.querySelector('.btn-loader');
+
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                btn.disabled = true;
+                btnText.style.display = 'none';
+                btnLoader.style.display = 'inline';
+
+                await authService.login(username, password);
+
+                // Redirect to main app
+                window.location.href = '/';
+            } catch (error) {
+                alert('Login failed: ' + error.message);
+                btn.disabled = false;
+                btnText.style.display = 'inline';
+                btnLoader.style.display = 'none';
+            }
+        });
+
+        // Signup form submission
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            const btnText = btn.querySelector('.btn-text');
+            const btnLoader = btn.querySelector('.btn-loader');
+
+            const username = document.getElementById('signupUsername').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirmPassword').value;
+            const language = 'en'; // Default to English as per requirement
+
+            // Validate passwords match
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+
+            try {
+                btn.disabled = true;
+                btnText.style.display = 'none';
+                btnLoader.style.display = 'inline';
+
+                await authService.signup(username, email, password, language);
+
+                // Redirect to main app
+                window.location.href = '/';
+            } catch (error) {
+                alert('Signup failed: ' + error.message);
+                btn.disabled = false;
+                btnText.style.display = 'inline';
+                btnLoader.style.display = 'none';
+            }
+        });
+
+        // Redirect if already logged in
+        if (authService.isAuthenticated()) {
+            window.location.href = '/';
+        }
+
+        // Password visibility toggle
+        document.querySelectorAll('.toggle-password').forEach(button => {
+            button.addEventListener('click', () => {
+                const targetId = button.getAttribute('data-target');
+                const passwordInput = document.getElementById(targetId);
+                const eyeIcon = button.querySelector('.eye-icon');
+
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    eyeIcon.textContent = '🙈';
+                } else {
+                    passwordInput.type = 'password';
+                    eyeIcon.textContent = '👁️';
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

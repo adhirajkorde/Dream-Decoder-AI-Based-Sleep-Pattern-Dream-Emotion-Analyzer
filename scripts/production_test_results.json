@@ -1,0 +1,275 @@
+[
+    {
+        "desc": "EN Positive/Garden",
+        "input": "I was flying over a beautiful golden garden and felt so peaceful.",
+        "expected": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "actual": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "status": "PASSED"
+    },
+    {
+        "desc": "EN Hope/Light (Context Weight)",
+        "input": "I was in a dark forest but found a bright light that guided me home.",
+        "expected": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "actual": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "status": "PASSED"
+    },
+    {
+        "desc": "EN Literal/Neutral",
+        "input": "I sat on a chair and read a book.",
+        "expected": {
+            "emo": "neutral",
+            "sent": "neutral"
+        },
+        "actual": {
+            "emo": "neutral",
+            "sent": "neutral"
+        },
+        "status": "PASSED"
+    },
+    {
+        "desc": "EN Safety (Boost)",
+        "input": "I am safe at home.",
+        "expected": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "actual": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "status": "PASSED"
+    },
+    {
+        "desc": "EN Achievement",
+        "input": "I graduated and everyone was cheering.",
+        "expected": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "actual": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "status": "PASSED"
+    },
+    {
+        "desc": "HI Joy/Clouds",
+        "input": "\u092e\u0948\u0902 \u092c\u0939\u0941\u0924 \u0916\u0941\u0936 \u0939\u0942\u0901, \u0906\u091c \u092e\u0948\u0902\u0928\u0947 \u090f\u0915 \u092a\u094d\u092f\u093e\u0930\u093e \u0938\u092a\u0928\u093e \u0926\u0947\u0916\u093e \u091c\u093f\u0938\u092e\u0947\u0902 \u092e\u0948\u0902 \u092c\u093e\u0926\u0932\u094b\u0902 \u092a\u0930 \u091a\u0932 \u0930\u0939\u093e \u0925\u093e\u0964",
+        "expected": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "actual": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "status": "PASSED"
+    },
+    {
+        "desc": "HI Fear/Chase",
+        "input": "\u092e\u0941\u091d\u0947 \u092c\u0939\u0941\u0924 \u0921\u0930 \u0932\u0917 \u0930\u0939\u093e \u0925\u093e, \u090f\u0915 \u0915\u093e\u0932\u093e \u0938\u093e\u092f\u093e \u092e\u0947\u0930\u093e \u092a\u0940\u091b\u093e \u0915\u0930 \u0930\u0939\u093e \u0925\u093e\u0964",
+        "expected": {
+            "emo": "fear",
+            "sent": "negative"
+        },
+        "actual": {
+            "emo": "fear",
+            "sent": "negative"
+        },
+        "status": "PASSED"
+    },
+    {
+        "desc": "HI Peace (Context Boost)",
+        "input": "\u091a\u093e\u0930\u094b\u0902 \u0913\u0930 \u0936\u093e\u0902\u0924\u093f \u0925\u0940, \u091c\u0948\u0938\u0947 \u092e\u0948\u0902 \u092c\u093e\u0926\u0932\u094b\u0902 \u092a\u0930 \u0938\u094b \u0930\u0939\u093e \u0939\u0942\u0901\u0964",
+        "expected": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "actual": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "status": "PASSED"
+    },
+    {
+        "desc": "HI Spiritual/Light",
+        "input": "\u092e\u0941\u091d\u0947 \u0926\u093f\u0935\u094d\u092f \u092a\u094d\u0930\u0915\u093e\u0936 \u0926\u093f\u0916\u093e\u0908 \u0926\u093f\u092f\u093e\u0964",
+        "expected": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "actual": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "status": "PASSED"
+    },
+    {
+        "desc": "HI Neutral/Place",
+        "input": "\u0915\u0932 \u092e\u0948\u0902\u0928\u0947 \u090f\u0915 \u0918\u0930 \u0926\u0947\u0916\u093e \u091c\u0939\u093e\u0901 \u0915\u094b\u0908 \u0928\u0939\u0940\u0902 \u0925\u093e\u0964",
+        "expected": {
+            "emo": "neutral",
+            "sent": "neutral"
+        },
+        "actual": {
+            "emo": "neutral",
+            "sent": "neutral"
+        },
+        "status": "PASSED"
+    },
+    {
+        "desc": "MR Joy/Flying",
+        "input": "\u092e\u0940 \u0916\u0942\u092a \u0906\u0928\u0902\u0926\u0940 \u0939\u094b\u0924\u094b \u0906\u0923\u093f \u0906\u0915\u093e\u0936\u093e\u0924 \u0909\u0921\u0924 \u0939\u094b\u0924\u094b, \u0916\u0942\u092a \u092e\u091c\u093e \u0906\u0932\u0940.",
+        "expected": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "actual": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "status": "PASSED"
+    },
+    {
+        "desc": "MR Fear/Abyss",
+        "input": "\u092e\u0932\u093e \u0916\u0942\u092a \u092d\u0940\u0924\u0940 \u0935\u093e\u091f\u0932\u0940, \u092e\u0940 \u0916\u094b\u0932 \u0926\u0930\u0940\u0924 \u092a\u0921\u0924 \u0939\u094b\u0924\u094b.",
+        "expected": {
+            "emo": "fear",
+            "sent": "negative"
+        },
+        "actual": {
+            "emo": "fear",
+            "sent": "negative"
+        },
+        "status": "PASSED"
+    },
+    {
+        "desc": "MR Victory/Success",
+        "input": "\u092e\u0940 \u092a\u0930\u0940\u0915\u094d\u0937\u0947\u0924 \u092f\u0936\u0938\u094d\u0935\u0940 \u091d\u093e\u0932\u094b, \u092e\u0932\u093e \u0916\u0942\u092a \u0905\u092d\u093f\u092e\u093e\u0928 \u0935\u093e\u091f\u0932\u093e.",
+        "expected": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "actual": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "status": "PASSED"
+    },
+    {
+        "desc": "MR Nature/Peace",
+        "input": "\u092e\u0940 \u0938\u092e\u0941\u0926\u094d\u0930\u0915\u093f\u0928\u093e\u0930\u0940 \u092c\u0938\u0932\u094b \u0939\u094b\u0924\u094b, \u0932\u093e\u091f\u093e \u0936\u093e\u0902\u0924 \u0939\u094b\u0924\u094d\u092f\u093e.",
+        "expected": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "actual": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "status": "PASSED"
+    },
+    {
+        "desc": "MR Friends/Love",
+        "input": "\u092e\u0940 \u092e\u093e\u091d\u094d\u092f\u093e \u091c\u0941\u0928\u094d\u092f\u093e \u092e\u093f\u0924\u094d\u0930\u093e\u0902\u0928\u093e \u092d\u0947\u091f\u0932\u094b, \u0916\u0942\u092a \u092e\u091c\u093e \u0906\u0932\u0940.",
+        "expected": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "actual": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "status": "PASSED"
+    },
+    {
+        "desc": "Hinglish Positive/Friends",
+        "input": "Main bahut happy tha aur sab achha lag raha tha, doston ke saath party kar raha tha.",
+        "expected": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "actual": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "status": "PASSED"
+    },
+    {
+        "desc": "Hinglish Fear/Snake",
+        "input": "Mujhe bahut dar lag raha tha, ek bada saanp mere piche tha.",
+        "expected": {
+            "emo": "fear",
+            "sent": "negative"
+        },
+        "actual": {
+            "emo": "fear",
+            "sent": "negative"
+        },
+        "status": "PASSED"
+    },
+    {
+        "desc": "Hinglish Victory",
+        "input": "Sapan mein main trophy jeet gaya and it was a victory.",
+        "expected": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "actual": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "status": "PASSED"
+    },
+    {
+        "desc": "Hinglish Driving/Neutral",
+        "input": "Main car chala raha tha ek lambi road par.",
+        "expected": {
+            "emo": "neutral",
+            "sent": "neutral"
+        },
+        "actual": {
+            "emo": "neutral",
+            "sent": "neutral"
+        },
+        "status": "PASSED"
+    },
+    {
+        "desc": "Hinglish Mixed/Win Overrides Snake",
+        "input": "Snake dikha but maine use maar diya and I won.",
+        "expected": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "actual": {
+            "emo": "joy",
+            "sent": "positive"
+        },
+        "status": "PASSED"
+    },
+    {
+        "desc": "Hinglish Anxiety/Exam",
+        "input": "Exam ka paper hard tha, tension ho raha tha.",
+        "expected": {
+            "emo": "fear",
+            "sent": "negative"
+        },
+        "actual": {
+            "emo": "fear",
+            "sent": "negative"
+        },
+        "status": "PASSED"
+    }
+]

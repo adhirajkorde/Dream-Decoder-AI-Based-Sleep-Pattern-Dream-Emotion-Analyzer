@@ -14,6 +14,7 @@ from flask_cors import CORS
 from backend.config import DEBUG, HOST, PORT, CORS_ORIGINS
 from backend.database.db import init_db
 from backend.routes import dreams_bp, sleep_bp, analysis_bp, insights_bp
+from backend.routes.auth import auth_bp
 
 
 def create_app():
@@ -29,6 +30,7 @@ def create_app():
     init_db()
     
     # Register blueprints (API routes)
+    app.register_blueprint(auth_bp)  # Authentication routes
     app.register_blueprint(dreams_bp)
     app.register_blueprint(sleep_bp)
     app.register_blueprint(analysis_bp)

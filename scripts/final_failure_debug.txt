@@ -1,0 +1,104 @@
+C:\Users\ADHIRAJ KORDE\AppData\Local\Programs\Python\Python310\lib\site-packages\huggingface_hub\file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+C:\Users\ADHIRAJ KORDE\AppData\Local\Programs\Python\Python310\lib\site-packages\huggingface_hub\file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+Description                         | Expected           | Actual             | Status
+------------------------------------------------------------------------------------------
+Loading emotion detection model...
+Emotion model loaded!
+FINAL DEBUG: label=joy, conf=0.9868659257888794
+Loading sentiment analysis model...
+Sentiment model loaded!
+FINAL SENT DEBUG: sentiment=positive, score=0.9133245944976807
+Loading SpaCy language model...
+SpaCy model loaded!
+DEBUG RAW: EN Positive/Garden -> E:joy S:positive
+EN Positive/Garden                  | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=joy, conf=0.5
+FINAL SENT DEBUG: sentiment=positive, score=0.6106737852096558
+DEBUG RAW: EN Hope/Light (Context Weight) -> E:joy S:positive
+EN Hope/Light (Context Weight)      | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=neutral, conf=0.9359301328659058
+FINAL SENT DEBUG: sentiment=positive, score=0.5473435521125793
+DEBUG RAW: EN Literal/Neutral -> E:neutral S:positive
+DEBUG FAIL: EN Literal/Neutral
+  Input: I sat on a chair and read a book.
+  Emo Scores: {'joy': 0.0184, 'sadness': 0.0046, 'anger': 0.009, 'fear': 0.0015, 'surprise': 0.0108, 'love': 0.0052, 'neutral': 0.9359}
+  Sent Score: 0.5473
+EN Literal/Neutral                  | E:neutral S:neutral | E:neutral S:positive | FAILED
+FINAL DEBUG: label=neutral, conf=0.5
+FINAL SENT DEBUG: sentiment=positive, score=0.7575989365577698
+DEBUG RAW: EN Safety (Boost) -> E:joy S:positive
+EN Safety (Boost)                   | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=joy, conf=0.7306517362594604
+FINAL SENT DEBUG: sentiment=neutral, score=0.8103164434432983
+DEBUG RAW: EN Achievement -> E:joy S:positive
+EN Achievement                      | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=joy, conf=0.20092616751790046
+FINAL SENT DEBUG: sentiment=neutral, score=0.810115784406662
+DEBUG RAW: HI Joy/Clouds -> E:joy S:positive
+HI Joy/Clouds                       | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=neutral, conf=0.21114996075630188
+FINAL SENT DEBUG: sentiment=negative, score=0.5541869401931763
+DEBUG RAW: HI Fear/Chase -> E:fear S:negative
+HI Fear/Chase                       | E:fear    S:negative | E:fear    S:negative | PASSED
+FINAL DEBUG: label=joy, conf=0.5
+FINAL SENT DEBUG: sentiment=positive, score=0.48562052845954895
+DEBUG RAW: HI Peace (Context Boost) -> E:joy S:positive
+HI Peace (Context Boost)            | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=joy, conf=0.5
+FINAL SENT DEBUG: sentiment=positive, score=0.6157345175743103
+DEBUG RAW: HI Spiritual/Light -> E:joy S:positive
+HI Spiritual/Light                  | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=neutral, conf=0.7996219396591187
+FINAL SENT DEBUG: sentiment=neutral, score=0.5
+DEBUG RAW: HI Neutral/Place -> E:neutral S:neutral
+HI Neutral/Place                    | E:neutral S:neutral | E:neutral S:neutral | PASSED
+FINAL DEBUG: label=joy, conf=0.3316568672657013
+FINAL SENT DEBUG: sentiment=neutral, score=0.9217561483383179
+DEBUG RAW: MR Joy/Flying -> E:joy S:positive
+MR Joy/Flying                       | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=neutral, conf=0.5678752660751343
+FINAL SENT DEBUG: sentiment=neutral, score=0.8398436903953552
+DEBUG RAW: MR Fear/Abyss -> E:fear S:negative
+MR Fear/Abyss                       | E:fear    S:negative | E:fear    S:negative | PASSED
+FINAL DEBUG: label=joy, conf=0.39952083826065066
+FINAL SENT DEBUG: sentiment=neutral, score=0.8558064997196198
+DEBUG RAW: MR Victory/Success -> E:joy S:positive
+MR Victory/Success                  | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=joy, conf=0.5
+FINAL SENT DEBUG: sentiment=positive, score=0.4
+DEBUG RAW: MR Nature/Peace -> E:joy S:positive
+MR Nature/Peace                     | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=neutral, conf=0.36796122789382935
+FINAL SENT DEBUG: sentiment=neutral, score=0.9046061038970947
+DEBUG RAW: MR Friends/Love -> E:joy S:positive
+MR Friends/Love                     | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=joy, conf=0.8556407928466797
+FINAL SENT DEBUG: sentiment=positive, score=0.8908169865608215
+DEBUG RAW: Hinglish Positive/Friends -> E:joy S:positive
+Hinglish Positive/Friends           | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=joy, conf=0.8653222918510437
+FINAL SENT DEBUG: sentiment=neutral, score=0.8323026895523071
+DEBUG RAW: Hinglish Fear/Snake -> E:fear S:negative
+Hinglish Fear/Snake                 | E:fear    S:negative | E:fear    S:negative | PASSED
+FINAL DEBUG: label=joy, conf=0.5868451863527298
+FINAL SENT DEBUG: sentiment=positive, score=0.8983772993087769
+DEBUG RAW: Hinglish Victory -> E:joy S:positive
+Hinglish Victory                    | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=neutral, conf=0.611258327960968
+FINAL SENT DEBUG: sentiment=neutral, score=0.9003213942050934
+DEBUG RAW: Hinglish Driving/Neutral -> E:neutral S:neutral
+Hinglish Driving/Neutral            | E:neutral S:neutral | E:neutral S:neutral | PASSED
+FINAL DEBUG: label=joy, conf=0.6595521152019501
+FINAL SENT DEBUG: sentiment=neutral, score=0.9598007798194885
+DEBUG RAW: Hinglish Mixed/Win Overrides Snake -> E:joy S:positive
+Hinglish Mixed/Win Overrides Snake  | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=joy, conf=0.8051188588142395
+FINAL SENT DEBUG: sentiment=negative, score=0.552702784538269
+DEBUG RAW: Hinglish Anxiety/Exam -> E:fear S:negative
+Hinglish Anxiety/Exam               | E:fear    S:negative | E:fear    S:negative | PASSED
+------------------------------------------------------------------------------------------
+Total Accuracy: 95.2% (20/21)
+
+SOME TESTS FAILED. FIXING REQUIRED.

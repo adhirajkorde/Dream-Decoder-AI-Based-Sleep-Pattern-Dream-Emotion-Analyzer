@@ -17,12 +17,39 @@ except ImportError as e:
     get_emotion_description = get_sentiment_emoji = lambda *args: "Unknown"
 
 
-def analyze_dream(text):
+def classify_dream_category(text, sentiment_result, emotion_result):
+    """Categorize the dream as nightmare, lucid, recurring, etc."""
+    text_lower = text.lower()
+    categories = []
+    
+    # Nightmare check: negative sentiment + strong negative emotion (fear, anger, sadness)
+    if sentiment_result['sentiment'] == 'negative' and emotion_result['primary_emotion'] in ['fear', 'anger', 'sadness']:
+        if emotion_result['confidence'] > 0.6:
+            categories.append('nightmare')
+            
+    # Lucid dream check: awareness keywords
+    lucid_keywords = ['realized', 'aware', 'lucid', 'dreaming', 'control', 'woke up in', 'know it was a dream']
+    if any(k in text_lower for k in lucid_keywords):
+        categories.append('lucid')
+        
+    # Recurring dream check: repetition keywords
+    recurring_keywords = ['again', 'repeat', 'before', 'always', 'every time', 'recurring', 'past', 'seen this']
+    if any(k in text_lower for k in recurring_keywords):
+        categories.append('recurring')
+        
+    if not categories:
+        categories.append('ordinary')
+        
+    return categories
+
+
+def analyze_dream(text, user_language='en'):
     """
     Perform complete NLP analysis on dream text.
     
     Args:
         text: The dream description text
+        user_language: User's preferred language code (en, hi, mr, hinglish)
         
     Returns:
         dict containing all analysis results:
@@ -33,6 +60,10 @@ def analyze_dream(text):
             - keywords: list of extracted keywords
             - entities: list of named entities
             - themes: categorized dream themes
+            - categories: list of dream types (nightmare, lucid, recurring, ordinary)
+            - interpretation: multilingual psychological interpretation
+            - detected_language: detected language of dream text
+            - language_confidence: confidence of language detection
     """
     if not text or not text.strip():
         return {
@@ -43,7 +74,11 @@ def analyze_dream(text):
             'keywords': [],
             'entities': [],
             'themes': ['general'],
-            'summary': 'No dream content to analyze.'
+            'categories': ['ordinary'],
+            'summary': 'No dream content to analyze.',
+            'interpretation': {},
+            'detected_language': user_language,
+            'language_confidence': 0
         }
     
     # Run all analyses
@@ -53,14 +88,19 @@ def analyze_dream(text):
     entities = extract_entities(text)
     themes = categorize_dream_theme(keywords)
     
-    # 3. Add Psychological Interpretation (New)
+    # Category Classification
+    dream_categories = classify_dream_category(text, sentiment_result, emotion_result)
+    
+    # Perform deep psychological interpretation
+    # Note: detect_with_fallback inside interpret_dream will handle the language detection
     from backend.services.dream_interpreter import interpret_dream
     interpretation = interpret_dream(text, {
         'keywords': keywords,
         'entities': entities,
         'emotion': emotion_result,
-        'sentiment': sentiment_result
-    })
+        'sentiment': sentiment_result,
+        'categories': dream_categories
+    }, user_language=user_language)
     
     # Generate a brief summary
     emoji = get_sentiment_emoji(sentiment_result['sentiment'])
@@ -68,6 +108,9 @@ def analyze_dream(text):
     
     summary = f"{emoji} This dream has a {sentiment_result['sentiment']} tone, "
     summary += f"with primary feelings of {emotion_result['primary_emotion']} ({emotion_desc}). "
+    
+    if dream_categories and 'ordinary' not in dream_categories:
+        summary += f"This appears to be a {', '.join(dream_categories)} dream. "
     
     if keywords:
         summary += f"Key themes include: {', '.join(keywords[:5])}."
@@ -81,8 +124,11 @@ def analyze_dream(text):
         'keywords': keywords,
         'entities': entities,
         'themes': themes,
+        'categories': dream_categories,
         'summary': summary,
-        'interpretation': interpretation # Added interpretation field
+        'interpretation': interpretation,
+        'detected_language': interpretation.get('detected_language', user_language),
+        'language_confidence': interpretation.get('language_confidence', 0)
     }
 
 

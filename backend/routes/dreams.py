@@ -5,16 +5,19 @@ API endpoints for dream CRUD operations
 from flask import Blueprint, request, jsonify
 from backend.models.dream import Dream
 from backend.services.nlp_engine import analyze_dream
+from backend.middleware.auth import require_auth
 
 dreams_bp = Blueprint('dreams', __name__)
 
 
 @dreams_bp.route('/api/dreams', methods=['POST'])
+@require_auth
 def create_dream():
     """Create a new dream entry with NLP analysis."""
     try:
+        user = request.current_user
         data = request.get_json()
-        print(f"DEBUG: Received dream data: {data}")
+        print(f"DEBUG: Received dream data from user {user.username}: {data}")
         
         if not data or 'content' not in data:
             return jsonify({'error': 'Dream content is required'}), 400
@@ -23,14 +26,18 @@ def create_dream():
         if not content:
             return jsonify({'error': 'Dream content cannot be empty'}), 400
         
-        # Perform NLP analysis
-        print("DEBUG: Starting NLP analysis...")
-        analysis = analyze_dream(content)
+        # Get user's language preference
+        user_language = user.language_preference or 'en'
+        
+        # Perform NLP analysis with language preference
+        print(f"DEBUG: Starting NLP analysis in language: {user_language}...")
+        analysis = analyze_dream(content, user_language=user_language)
         print("DEBUG: NLP analysis complete.")
         
-        # Create dream object
+        # Create dream object with user_id
         print("DEBUG: Creating Dream object...")
         dream = Dream(
+            user_id=user.id,
             content=content,
             sentiment=analysis['sentiment'],
             sentiment_score=analysis['sentiment_score'],
@@ -51,7 +58,9 @@ def create_dream():
         response['analysis'] = {
             'themes': analysis['themes'],
             'summary': analysis['summary'],
-            'emotion_confidence': analysis.get('emotion_confidence', 0)
+            'emotion_confidence': analysis.get('emotion_confidence', 0),
+            'detected_language': analysis.get('detected_language', user_language),
+            'language_confidence': analysis.get('language_confidence', 0)
         }
         
         print("DEBUG: Returning successful response.")
@@ -64,8 +73,10 @@ def create_dream():
 
 
 @dreams_bp.route('/api/dreams', methods=['GET'])
+@require_auth
 def get_dreams():
-    """Get all dreams with optional pagination."""
+    """Get all dreams for the authenticated user with optional pagination."""
+    user = request.current_user
     limit = request.args.get('limit', 50, type=int)
     offset = request.args.get('offset', 0, type=int)
     
@@ -75,8 +86,8 @@ def get_dreams():
     if offset < 0:
         offset = 0
         
-    dreams = Dream.get_all(limit=limit, offset=offset)
-    total = Dream.count()
+    dreams = Dream.get_all(user.id, limit=limit, offset=offset)
+    total = Dream.count(user.id)
     
     return jsonify({
         'dreams': [d.to_dict() for d in dreams],
@@ -109,15 +120,17 @@ def delete_dream(dream_id):
 
 
 @dreams_bp.route('/api/dreams/recent', methods=['GET'])
+@require_auth
 def get_recent_dreams():
-    """Get dreams from the last N days."""
+    """Get dreams from the last N days for the authenticated user."""
+    user = request.current_user
     days = request.args.get('days', 7, type=int)
     
     # Validation
     if days < 1 or days > 365:
         return jsonify({'error': 'Days must be between 1 and 365'}), 400
         
-    dreams = Dream.get_recent(days=days)
+    dreams = Dream.get_recent(user.id, days=days)
     
     return jsonify({
         'dreams': [d.to_dict() for d in dreams],

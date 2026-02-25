@@ -10,10 +10,11 @@ from backend.database.db import get_db_connection
 class Dream:
     """Dream model for database operations."""
     
-    def __init__(self, id=None, content=None, created_at=None, sentiment=None,
+    def __init__(self, id=None, user_id=None, content=None, created_at=None, sentiment=None,
                  sentiment_score=None, primary_emotion=None, emotion_scores=None,
                  keywords=None, entities=None, interpretation=None):
         self.id = id
+        self.user_id = user_id
         self.content = content
         self.created_at = created_at
         self.sentiment = sentiment
@@ -47,6 +48,7 @@ class Dream:
         
         return Dream(
             id=row['id'],
+            user_id=row['user_id'],
             content=row['content'],
             created_at=row['created_at'],
             sentiment=row['sentiment'],
@@ -66,10 +68,11 @@ class Dream:
             if self.id is None:
                 # Insert new dream
                 cursor.execute('''
-                    INSERT INTO dreams (content, sentiment, sentiment_score, primary_emotion,
+                    INSERT INTO dreams (user_id, content, sentiment, sentiment_score, primary_emotion,
                                        emotion_scores, keywords, entities, interpretation)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (
+                    self.user_id,
                     self.content,
                     self.sentiment,
                     self.sentiment_score,
@@ -110,14 +113,14 @@ class Dream:
         return self
     
     @staticmethod
-    def get_all(limit=100, offset=0):
-        """Get all dreams, ordered by most recent first."""
+    def get_all(user_id, limit=100, offset=0):
+        """Get all dreams for a user, ordered by most recent first."""
         with get_db_connection() as conn:
             cursor = conn.cursor()
             
             cursor.execute('''
-                SELECT * FROM dreams ORDER BY created_at DESC LIMIT ? OFFSET ?
-            ''', (limit, offset))
+                SELECT * FROM dreams WHERE user_id=? ORDER BY created_at DESC LIMIT ? OFFSET ?
+            ''', (user_id, limit, offset))
             
             rows = cursor.fetchall()
             return [Dream.from_row(row) for row in rows]
@@ -145,26 +148,26 @@ class Dream:
             return deleted
     
     @staticmethod
-    def get_recent(days=7):
-        """Get dreams from the last N days."""
+    def get_recent(user_id, days=7):
+        """Get dreams from the last N days for a user."""
         with get_db_connection() as conn:
             cursor = conn.cursor()
             
             cursor.execute('''
                 SELECT * FROM dreams 
-                WHERE created_at >= datetime('now', '-' || ? || ' days')
+                WHERE user_id=? AND created_at >= datetime('now', '-' || ? || ' days')
                 ORDER BY created_at DESC
-            ''', (days,))
+            ''', (user_id, days))
             
             rows = cursor.fetchall()
             return [Dream.from_row(row) for row in rows]
     
     @staticmethod
-    def count():
-        """Get total count of dreams."""
+    def count(user_id):
+        """Get total count of dreams for a user."""
         with get_db_connection() as conn:
             cursor = conn.cursor()
             
-            cursor.execute('SELECT COUNT(*) as count FROM dreams')
+            cursor.execute('SELECT COUNT(*) as count FROM dreams WHERE user_id=?', (user_id,))
             row = cursor.fetchone()
             return row['count'] if row else 0

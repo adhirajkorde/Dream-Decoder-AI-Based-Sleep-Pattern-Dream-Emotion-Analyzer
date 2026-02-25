@@ -18,8 +18,8 @@ PORT = int(os.environ.get('PORT', 5000))
 CORS_ORIGINS = ['http://localhost:5000', 'http://127.0.0.1:5000']
 
 # NLP Model settings
-EMOTION_MODEL = 'bhadresh-savani/distilbert-base-uncased-emotion'
-SENTIMENT_MODEL = 'distilbert-base-uncased-finetuned-sst-2-english'
+EMOTION_MODEL = 'AnasAlokla/multilingual_go_emotions'
+SENTIMENT_MODEL = 'lxyuan/distilbert-base-multilingual-cased-sentiments-student'
 SPACY_MODEL = 'en_core_web_sm'
 
 # Common dream themes/keywords to detect

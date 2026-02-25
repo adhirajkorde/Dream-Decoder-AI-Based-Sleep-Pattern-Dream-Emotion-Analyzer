@@ -17,7 +17,18 @@ async function apiRequest(endpoint, options = {}) {
         },
     };
 
+    // Add authentication headers if available
+    if (typeof authService !== 'undefined' && authService.isAuthenticated()) {
+        const authHeaders = authService.getAuthHeaders();
+        defaultOptions.headers = { ...defaultOptions.headers, ...authHeaders };
+    }
+
     const config = { ...defaultOptions, ...options };
+
+    // Merge headers properly
+    if (options.headers) {
+        config.headers = { ...defaultOptions.headers, ...options.headers };
+    }
 
     try {
         const response = await fetch(url, config);
@@ -33,6 +44,12 @@ async function apiRequest(endpoint, options = {}) {
         }
 
         if (!response.ok) {
+            // Handle 401 Unauthorized - redirect to login
+            if (response.status === 401 && typeof authService !== 'undefined') {
+                authService.clearAuth();
+                window.location.href = '/login.html';
+                return;
+            }
             throw new Error(data.error || `HTTP error! status: ${response.status}`);
         }
 
@@ -133,6 +150,15 @@ async function getSleepStats(days = 7) {
  */
 async function deleteSleepRecord(id) {
     return apiRequest(`/api/sleep/${id}`, {
+        method: 'DELETE',
+    });
+}
+
+/**
+ * Delete all sleep records for the authenticated user
+ */
+async function deleteAllSleepRecords() {
+    return apiRequest('/api/sleep/all', {
         method: 'DELETE',
     });
 }

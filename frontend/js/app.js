@@ -57,6 +57,25 @@ async function checkHealth() {
     }
 }
 
+/**
+ * Toggle loading overlay visibility
+ */
+function toggleLoadingOverlay(show, text = null) {
+    const overlay = document.getElementById('loading-overlay');
+    if (!overlay) return;
+
+    if (text) {
+        const textEl = overlay.querySelector('.loading-text');
+        if (textEl) textEl.textContent = text;
+    }
+
+    if (show) {
+        overlay.classList.add('active');
+    } else {
+        overlay.classList.remove('active');
+    }
+}
+
 // ==========================================
 // TAB NAVIGATION
 // ==========================================
@@ -179,11 +198,18 @@ async function handleDreamSubmit(e) {
         return;
     }
 
+    if (content.length < 10) {
+        showToast('warning', 'Please provide a bit more detail (at least 10 characters) for a better analysis.');
+        return;
+    }
+
     // Disable button during processing
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="btn-icon">⏳</span><span>Analyzing...</span>';
 
     try {
+        toggleLoadingOverlay(true, 'Analyzing your dream...');
+
         // Create dream with analysis
         const dream = await createDream(content);
 
@@ -197,11 +223,29 @@ async function handleDreamSubmit(e) {
         contentInput.value = '';
 
         // Reload dreams list
-        loadDreams();
+        await loadDreams();
+
+        // Reload analytics and insights to reflect new data
+        console.log('🔄 Reloading analytics and insights after submission...');
+        loadAnalytics();
+        loadInsights();
+
+        // Auto-open modal for the new dream to show full interpretation
+        if (dream.id) {
+            openDreamModal({
+                id: dream.id,
+                content: content,
+                emotion: dream.primary_emotion || 'neutral',
+                sentiment: dream.sentiment || 'neutral',
+                keywords: dream.keywords || [],
+                date: 'Just now'
+            });
+        }
 
     } catch (error) {
         showToast('error', `Failed to save dream: ${error.message}`);
     } finally {
+        toggleLoadingOverlay(false);
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<span class="btn-icon">🧠</span><span>Analyze & Save</span>';
     }
@@ -346,6 +390,13 @@ function renderDreamItem(dream) {
     const keywords = (dream.keywords || []).slice(0, 4);
     const keywordsStr = (dream.keywords || []).join(',');
 
+    // Get categories badges (NEW!)
+    const categories = dream.categories || [];
+    const categoryBadges = categories
+        .filter(cat => cat !== 'ordinary')
+        .map(cat => `<span class="category-badge badge-${cat}">${capitalize(cat)}</span>`)
+        .join('');
+
     return `
         <div class="dream-item" 
              data-id="${dream.id}"
@@ -355,7 +406,10 @@ function renderDreamItem(dream) {
              data-keywords="${keywordsStr}"
              data-date="${date}">
             <div class="dream-item-header">
-                <span class="dream-date">${date}</span>
+                <div class="dream-header-left">
+                    <span class="dream-date">${date}</span>
+                    <div class="dream-badges">${categoryBadges}</div>
+                </div>
                 <span class="dream-emotion">${emotionEmoji} ${capitalize(dream.primary_emotion || 'neutral')}</span>
             </div>
             <p class="dream-content">${escapeHtml(dream.content)}</p>
@@ -541,8 +595,18 @@ async function handleSleepSubmit(e) {
         notes: formData.get('notes') || ''
     };
 
-    if (!data.date || !data.duration_hours) {
-        showToast('warning', 'Please fill in required fields.');
+    if (!data.date || isNaN(data.duration_hours)) {
+        showToast('warning', 'Please fill in required fields correctly.');
+        return;
+    }
+
+    if (data.duration_hours <= 0 || data.duration_hours > 24) {
+        showToast('warning', 'Please enter a valid sleep duration (0-24 hours).');
+        return;
+    }
+
+    if (data.quality_rating < 1 || data.quality_rating > 10) {
+        showToast('warning', 'Sleep quality must be between 1 and 10.');
         return;
     }
 
@@ -601,6 +665,39 @@ async function loadSleepRecords() {
 
         container.innerHTML = records.map(record => renderSleepItem(record)).join('');
 
+        // Add delete handlers for individual sleep records
+        container.querySelectorAll('.btn-delete-sleep').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const id = btn.dataset.id;
+                if (confirm('Are you sure you want to delete this sleep record?')) {
+                    try {
+                        await deleteSleepRecord(id);
+                        showToast('success', 'Sleep record deleted');
+                        loadSleepRecords();
+                    } catch (error) {
+                        showToast('error', 'Failed to delete sleep record');
+                    }
+                }
+            });
+        });
+
+        // Add handler for "Delete All" button if it's the first time
+        const deleteAllBtn = document.getElementById('delete-all-sleep');
+        if (deleteAllBtn && !deleteAllBtn.dataset.listener) {
+            deleteAllBtn.dataset.listener = 'true';
+            deleteAllBtn.addEventListener('click', async () => {
+                if (confirm('⚠️ WARNING: This will permanently delete ALL your sleep records. This action cannot be undone. Proceed?')) {
+                    try {
+                        const response = await deleteAllSleepRecords();
+                        showToast('success', `Deleted ${response.count} sleep records`);
+                        loadSleepRecords();
+                    } catch (error) {
+                        showToast('error', 'Failed to delete sleep history');
+                    }
+                }
+            });
+        }
+
     } catch (error) {
         container.innerHTML = `
             <div class="empty-state">
@@ -620,13 +717,18 @@ function renderSleepItem(record) {
 
     return `
         <div class="sleep-item">
-            <span class="sleep-item-date">${date}</span>
-            <div class="sleep-item-stats">
-                <span>💤 ${record.duration_hours}h</span>
-                <span>🔔 ${record.wakeups || 0} wakeups</span>
-                <div class="sleep-quality-bar">
-                    <div class="sleep-quality-fill" style="width: ${qualityPercent}%"></div>
+            <div class="sleep-item-info">
+                <span class="sleep-item-date">${date}</span>
+                <div class="sleep-item-stats">
+                    <span>💤 ${record.duration_hours}h</span>
+                    <span>🔔 ${record.wakeups || 0} wakeups</span>
+                    <div class="sleep-quality-bar">
+                        <div class="sleep-quality-fill" style="width: ${qualityPercent}%"></div>
+                    </div>
                 </div>
+            </div>
+            <div class="sleep-item-actions">
+                <button class="btn-delete-sleep" data-id="${record.id}" title="Delete record">🗑️</button>
             </div>
         </div>
     `;
@@ -643,9 +745,11 @@ async function loadAnalytics() {
     const periodSelect = document.getElementById('emotion-period');
     const days = periodSelect ? parseInt(periodSelect.value) : 30;
 
+    console.log(`📊 Loading analytics for ${days} days...`);
     try {
         // Get trends data
         const trends = await getTrends(days);
+        console.log('✅ Received trends data:', trends);
 
         // Render emotion trends chart
         if (trends.emotions) {
@@ -703,8 +807,10 @@ async function loadInsights() {
         </div>
     `;
 
+    console.log('💡 Loading insights for 7 days...');
     try {
         const data = await getInsights(7);
+        console.log('✅ Received insights data:', data);
 
         // Render insights
         if (data.insights && data.insights.length > 0) {
@@ -835,38 +941,44 @@ function renderInsight(insight) {
 /**
  * Show a toast notification
  */
-function showToast(type, message) {
+function showToast(type, message, duration = 4000) {
     const container = document.getElementById('toast-container');
     if (!container) return;
 
     const iconMap = {
-        success: '✅',
-        error: '❌',
+        success: '✨',
+        error: '🚨',
         warning: '⚠️',
-        info: '💡'
+        info: 'ℹ️'
     };
 
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     toast.innerHTML = `
-        <span class="toast-icon">${iconMap[type] || '💡'}</span>
-        <span class="toast-message">${escapeHtml(message)}</span>
-        <button class="toast-close">&times;</button>
+        <div class="toast-content">
+            <span class="toast-icon">${iconMap[type] || '✨'}</span>
+            <span class="toast-message">${escapeHtml(message)}</span>
+            <button class="toast-close">&times;</button>
+        </div>
+        <div class="toast-progress">
+            <div class="toast-progress-bar" style="animation-duration: ${duration}ms"></div>
+        </div>
     `;
 
     container.appendChild(toast);
 
-    // Close on click
-    toast.querySelector('.toast-close').addEventListener('click', () => {
-        toast.remove();
-    });
+    const removeToast = () => {
+        toast.style.animation = 'fadeOut 0.3s ease forwards';
+        setTimeout(() => {
+            if (toast.parentElement) toast.remove();
+        }, 300);
+    };
 
-    // Auto-remove after 5 seconds
-    setTimeout(() => {
-        if (toast.parentNode) {
-            toast.remove();
-        }
-    }, 5000);
+    // Close on click
+    toast.querySelector('.toast-close').addEventListener('click', removeToast);
+
+    // Auto-remove
+    setTimeout(removeToast, duration);
 }
 
 // ==========================================
@@ -883,39 +995,71 @@ let recognition = null;
 if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     recognition = new SpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = 'en-US';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    // Set language to support Hinglish/Hindi/Marathi/English
+    recognition.lang = 'hi-IN';
+
+    let finalTranscript = '';
 
     recognition.onstart = () => {
         voiceBtn.classList.add('recording');
-        voiceBtn.innerHTML = '<span class="voice-icon">🛑</span>';
-        showToast('info', 'Listening... Speak now.');
+        voiceBtn.innerHTML = '<span class="voice-icon" title="Stop Mic">🛑</span>';
+        voiceBtn.title = 'Stop Mic';
+        showToast('info', 'Microphone active. Listening continuously...');
     };
 
     recognition.onend = () => {
+        // Auto-restart if the button state still implies we should be recording
+        // (This prevents the browser from stopping due to silence)
+        if (voiceBtn.classList.contains('recording')) {
+            try {
+                recognition.start();
+            } catch (err) {
+                console.log('Recognition restart failed:', err);
+            }
+            return;
+        }
         voiceBtn.classList.remove('recording');
-        voiceBtn.innerHTML = '<span class="voice-icon">🎤</span>';
+        voiceBtn.innerHTML = '<span class="voice-icon" title="Start Mic">🎤</span>';
+        voiceBtn.title = 'Start Mic';
     };
 
     recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
+        let interimTranscript = '';
         const dreamContent = document.getElementById('dream-content');
-        if (dreamContent) {
-            const currentVal = dreamContent.value.trim();
-            dreamContent.value = currentVal ? `${currentVal} ${transcript}` : transcript;
-            // Trigger input event to auto-resize if needed
-            dreamContent.dispatchEvent(new Event('input'));
+        if (!dreamContent) return;
+
+        // Get current cursor position or just append at the end
+        // For simplicity in a dream journal, we'll maintain a specific session transcript
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+                // If it's final, add it to our persistent box
+                const currentVal = dreamContent.value.trim();
+                dreamContent.value = currentVal ? `${currentVal} ${transcript}` : transcript;
+                dreamContent.dispatchEvent(new Event('input'));
+            } else {
+                interimTranscript += transcript;
+            }
+        }
+
+        // You could show interimTranscript in a small overlay or status bar if desired
+        if (interimTranscript) {
+            console.log('Interim speech:', interimTranscript);
         }
     };
 
     recognition.onerror = (event) => {
+        if (event.error === 'no-speech') return; // Ignore silence errors
         console.error('Speech recognition error:', event.error);
         showToast('error', `Speech recognition error: ${event.error}`);
     };
 }
 
 if (voiceBtn) {
+    voiceBtn.title = 'Start Mic'; // Initial title
     voiceBtn.addEventListener('click', () => {
         if (!recognition) {
             showToast('warning', 'Speech recognition is not supported in your browser.');
@@ -923,6 +1067,7 @@ if (voiceBtn) {
         }
 
         if (voiceBtn.classList.contains('recording')) {
+            voiceBtn.classList.remove('recording'); // Remove class first so onend doesn't restart
             recognition.stop();
         } else {
             recognition.start();

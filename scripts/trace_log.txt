@@ -1,0 +1,84 @@
+C:\Users\ADHIRAJ KORDE\AppData\Local\Programs\Python\Python310\lib\site-packages\huggingface_hub\file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+C:\Users\ADHIRAJ KORDE\AppData\Local\Programs\Python\Python310\lib\site-packages\huggingface_hub\file_download.py:949: FutureWarning: `resume_download` is deprecated and will be removed in version 1.0.0. Downloads always resume when possible. If you want to force a new download, use `force_download=True`.
+  warnings.warn(
+Description                         | Expected           | Actual             | Status
+------------------------------------------------------------------------------------------
+Loading emotion detection model...
+Emotion model loaded!
+FINAL DEBUG: label=joy, conf=0.9868659257888794
+Loading sentiment analysis model...
+Sentiment model loaded!
+FINAL SENT DEBUG: sentiment=positive, score=0.9133245944976807
+Loading SpaCy language model...
+SpaCy model loaded!
+EN Positive/Garden                  | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=joy, conf=0.5
+FINAL SENT DEBUG: sentiment=positive, score=0.6106737852096558
+EN Hope/Light (Context Weight)      | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=neutral, conf=0.9359301328659058
+FINAL SENT DEBUG: sentiment=positive, score=0.5473435521125793
+EN Literal/Neutral                  | E:neutral S:neutral | E:neutral S:neutral | PASSED
+FINAL DEBUG: label=neutral, conf=0.5
+FINAL SENT DEBUG: sentiment=positive, score=0.7575989365577698
+EN Safety (Boost)                   | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=joy, conf=0.7306517362594604
+FINAL SENT DEBUG: sentiment=neutral, score=0.8103164434432983
+EN Achievement                      | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=joy, conf=0.20092616751790046
+FINAL SENT DEBUG: sentiment=neutral, score=0.810115784406662
+HI Joy/Clouds                       | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=neutral, conf=0.21114996075630188
+FINAL SENT DEBUG: sentiment=negative, score=0.5541869401931763
+HI Fear/Chase                       | E:fear    S:negative | E:fear    S:negative | PASSED
+FINAL DEBUG: label=joy, conf=0.5
+FINAL SENT DEBUG: sentiment=positive, score=0.48562052845954895
+HI Peace (Context Boost)            | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=joy, conf=0.5
+FINAL SENT DEBUG: sentiment=positive, score=0.6157345175743103
+HI Spiritual/Light                  | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=neutral, conf=0.7996219396591187
+FINAL SENT DEBUG: sentiment=neutral, score=0.5
+DEBUG FAIL: HI Neutral/Place
+  Input: कल मैंने एक घर देखा जहाँ कोई नहीं था।
+  Emo Scores: {'joy': 0.0094, 'sadness': 0.0285, 'anger': 0.0395, 'fear': 0.0049, 'surprise': 0.0472, 'love': 0.0028, 'neutral': 0.7996}
+  Sent Score: 0.5
+  Context Boosts: None
+HI Neutral/Place                    | E:neutral S:neutral | E:joy     S:positive | FAILED
+FINAL DEBUG: label=joy, conf=0.3316568672657013
+FINAL SENT DEBUG: sentiment=neutral, score=0.9217561483383179
+MR Joy/Flying                       | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=neutral, conf=0.5678752660751343
+FINAL SENT DEBUG: sentiment=neutral, score=0.8398436903953552
+MR Fear/Abyss                       | E:fear    S:negative | E:fear    S:negative | PASSED
+FINAL DEBUG: label=joy, conf=0.39952083826065066
+FINAL SENT DEBUG: sentiment=neutral, score=0.8558064997196198
+MR Victory/Success                  | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=joy, conf=0.5
+FINAL SENT DEBUG: sentiment=positive, score=0.4
+MR Nature/Peace                     | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=neutral, conf=0.36796122789382935
+FINAL SENT DEBUG: sentiment=neutral, score=0.9046061038970947
+MR Friends/Love                     | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=joy, conf=0.8556407928466797
+FINAL SENT DEBUG: sentiment=positive, score=0.8908169865608215
+Hinglish Positive/Friends           | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=joy, conf=0.8653222918510437
+FINAL SENT DEBUG: sentiment=neutral, score=0.8323026895523071
+Hinglish Fear/Snake                 | E:fear    S:negative | E:fear    S:negative | PASSED
+FINAL DEBUG: label=joy, conf=0.5868451863527298
+FINAL SENT DEBUG: sentiment=positive, score=0.8983772993087769
+Hinglish Victory                    | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=neutral, conf=0.611258327960968
+FINAL SENT DEBUG: sentiment=neutral, score=0.9003213942050934
+Hinglish Driving/Neutral            | E:neutral S:neutral | E:neutral S:neutral | PASSED
+FINAL DEBUG: label=joy, conf=0.6595521152019501
+FINAL SENT DEBUG: sentiment=neutral, score=0.9598007798194885
+Hinglish Mixed/Win Overrides Snake  | E:joy     S:positive | E:joy     S:positive | PASSED
+FINAL DEBUG: label=joy, conf=0.8051188588142395
+FINAL SENT DEBUG: sentiment=negative, score=0.552702784538269
+Hinglish Anxiety/Exam               | E:fear    S:negative | E:fear    S:negative | PASSED
+------------------------------------------------------------------------------------------
+Total Accuracy: 95.2% (20/21)
+
+SOME TESTS FAILED. FIXING REQUIRED.

@@ -1,342 +1,267 @@
 """
-Dream Decoder - Insights Generator
-Generates personalized insights and health recommendations based on dream and sleep patterns
+Dream Decoder - Advanced Insights & Analysis Generator
+Generates dynamic, personalized insights based on dream and sleep patterns
 """
+import random
 from collections import Counter
 from datetime import datetime, timedelta
 from backend.models.dream import Dream
 from backend.models.sleep import SleepRecord
 
+from backend.services.translations import get_insight_template, get_translation
 
-# Health recommendations database
-HEALTH_TIPS = {
+# Expanded Emotional Insights with Variations
+EMOTIONAL_INSIGHTS = {
     'fear': {
-        'title': 'Managing Anxiety & Fear',
-        'tips': [
-            'Practice progressive muscle relaxation before bed',
-            'Try 4-7-8 breathing: inhale 4 sec, hold 7 sec, exhale 8 sec',
-            'Write down worries 2 hours before bedtime to clear your mind',
-            'Limit caffeine intake after 2 PM',
-            'Consider chamomile tea or lavender aromatherapy'
+        'insights': [
+            "Fear-based dreams often reflect daytime anxiety or stress. Your subconscious may be processing unresolved worries.",
+            "Recurring fear in dreams can be a sign that you're avoiding a challenging situation in your waking life.",
+            "Nightmares with fear often serve as a release valve for accumulated emotional tension.",
+            "Feeling afraid in dreams often mirrors a lack of control in some area of your daily routine."
         ],
-        'insight': 'Fear-based dreams often reflect daytime anxiety or stress. Your subconscious may be processing unresolved worries.'
+        'recommendations': [
+            "Practice 'Image Rehearsal': reimagine your fearful dream with a positive, empowering ending.",
+            "Write down your top 3 worries 2 hours before bed to 'empty' your mind.",
+            "Try 4-7-8 breathing (inhale 4s, hold 7s, exhale 8s) if you wake up from a scary dream.",
+            "Limit news or intense media consumption 2 hours before sleep."
+        ]
     },
     'sadness': {
-        'title': 'Emotional Wellness',
-        'tips': [
-            'Practice gratitude journaling - write 3 good things from your day',
-            'Ensure adequate sunlight exposure (15-30 min daily)',
-            'Connect with friends or loved ones regularly',
-            'Light exercise like walking can boost mood naturally',
-            'Consider speaking with a counselor if sadness persists'
+        'insights': [
+            "Sad dreams may indicate unprocessed grief or a need for emotional release. They can be part of the healing process.",
+            "Persistent sadness in dreams might suggest you're not giving yourself enough space for self-care during the day.",
+            "Emotional dreams involving sadness often help the brain regulate mood and process disappointment.",
+            "Dreaming of sadness can sometimes be a reflection of seasonal changes or physical fatigue."
         ],
-        'insight': 'Sad dreams may indicate unprocessed emotions or grief. They can actually be healing as your mind works through feelings.'
+        'recommendations': [
+            "Engage in 'Gratitude Journaling': write down three small wins before sleeping.",
+            "Ensure you get at least 15 minutes of natural sunlight during the day.",
+            "Connect with a close friend or family member for a brief, positive conversation.",
+            "Listen to uplifting music or watch something lighthearted before bed."
+        ]
     },
     'anger': {
-        'title': 'Releasing Tension',
-        'tips': [
-            'Physical exercise helps release pent-up frustration',
-            'Practice mindfulness to observe anger without reacting',
-            'Write unsent letters to express frustrations safely',
-            'Take a warm bath or shower before bed to relax muscles',
-            'Avoid screens and heated discussions 1 hour before sleep'
+        'insights': [
+            "Anger in dreams often reflects suppressed frustrations from your waking life that haven't found an outlet.",
+            "Vivid dreams of conflict can be your subconscious trying to 'work through' an argument or perceived injustice.",
+            "Feeling angry while dreaming is often a safe way for your mind to process intense reactive emotions.",
+            "Dream anger might be a signal that your personal boundaries are being tested in reality."
         ],
-        'insight': 'Anger in dreams often reflects suppressed frustrations. Physical activity and creative outlets can provide healthy release.'
+        'recommendations': [
+            "Try a brief physical activity (like a quick walk or stretching) to release physical tension.",
+            "Write an 'unsent letter' to express your frustrations fully before you sleep.",
+            "Use progressive muscle relaxation to let go of physical 'anger armor' in your body.",
+            "Create a 'cool down' ritual before bed—avoid heated debates or complex work."
+        ]
     },
     'joy': {
-        'title': 'Maintaining Positivity',
-        'tips': [
-            'Continue your current wellness practices - they\'re working!',
-            'Share your positive dreams with others',
-            'Use dream journaling to track what makes you happy',
-            'Build on positive themes for visualization exercises',
-            'Celebrate small wins in your daily life'
+        'insights': [
+            "Joyful dreams indicate high emotional resilience and positive life experiences currently.",
+            "Frequent happiness in dreams often results from feeling secure and appreciated in your daily life.",
+            "Your subconscious is celebrating your recent successes and reflecting your inner contentment.",
+            "Dreams of joy suggest you're in a phase of creative growth or emotional expansion."
         ],
-        'insight': 'Joyful dreams indicate emotional balance and positive life experiences. Your subconscious is reflecting contentment!'
-    }
-}
-
-SLEEP_HEALTH_TIPS = {
-    'poor_quality': {
-        'title': 'Improve Sleep Quality',
-        'tips': [
-            'Keep bedroom temperature between 60-67°F (15-19°C)',
-            'Use blackout curtains or an eye mask',
-            'Remove electronic devices from the bedroom',
-            'Maintain consistent sleep and wake times',
-            'Invest in a comfortable mattress and pillows',
-            'Use white noise or earplugs if needed'
+        'recommendations': [
+            "Keep doing what you're doing—your current sleep hygiene and mental habits are working!",
+            "Take a moment to visualize these positive dream scenes when you feel stressed during the day.",
+            "Maintain your social connections as they seem to be fueling your positive state.",
+            "Consider tracking what specific daytime activities precede these joyful dreams."
         ]
     },
-    'short_duration': {
-        'title': 'Getting Enough Sleep',
-        'tips': [
-            'Adults need 7-9 hours of sleep per night',
-            'Set a bedtime alarm 30 minutes before target sleep time',
-            'Avoid naps longer than 20 minutes after 2 PM',
-            'Create a relaxing pre-sleep routine',
-            'Limit alcohol - it disrupts sleep quality later in the night'
+    'surprise': {
+        'insights': [
+            "Dreams of surprise often reflect your adaptability to unexpected changes in your life.",
+            "Feeling startled or surprised in a dream suggests you're processing new information or a shift in perspective.",
+            "Your mind is exploring 'what if' scenarios, preparing you for variety and change.",
+            "Surprise in dreams can be a sign of a creative breakthrough or a sudden realization."
+        ],
+        'recommendations': [
+            "Stay open to new ideas—your mind is clearly in an active, observant state.",
+            "Try some light meditation to stay grounded amidst life's surprises.",
+            "Journal about any recent 'aha!' moments you've had recently.",
+            "Keep a flexible schedule where possible to match your mind's current adaptability."
         ]
     },
-    'many_wakeups': {
-        'title': 'Reducing Night Wakeups',
-        'tips': [
-            'Avoid liquids 2 hours before bedtime',
-            'Check for sleep apnea if you snore frequently',
-            'Keep room completely dark (even small lights affect sleep)',
-            'Consider a weighted blanket for comfort',
-            'Avoid large meals close to bedtime'
-        ]
-    },
-    'negative_dreams': {
-        'title': 'Reducing Nightmares',
-        'tips': [
-            'Practice Image Rehearsal Therapy: reimagine bad dreams with positive endings',
-            'Keep a dream journal to identify triggers',
-            'Avoid scary movies, news, or games before bed',
-            'Create a calm bedtime routine with relaxation',
-            'Consider speaking with a therapist if nightmares persist'
+    'neutral': {
+        'insights': [
+            "Neutral dreams serve as a 'defragmentation' process for your brain, organizing information without intense emotional charge.",
+            "Thinking or observing in a dream without strong emotion shows your brain is in a high-level troubleshooting mode.",
+            "Ordinary dreams are essential for memory consolidation and preparing for the following day's tasks.",
+            "Feeling 'just okay' in a dream indicates stability and a balanced emotional state."
+        ],
+        'recommendations': [
+            "Try to record even the smallest details—these often contain the most interesting patterns.",
+            "Consider if the 'neutral' events in your dream reflect your current routine.",
+            "Maintain your current habits as they are providing a stable environment for your rest.",
+            "Practice mindfulness to see if you can become more aware of subtle emotions in these dreams."
         ]
     }
 }
 
+# Dream Category Specific Insights
+CATEGORY_INSIGHTS = {
+    'nightmare': {
+        'insight': "Nightmares are common during periods of high stress or transition. They are your brain's way of 'stress-testing' difficult emotions.",
+        'recommendation': "Establish a very consistent, calming 'wind-down' routine. Low lights and soft music for 30 mins before bed is key."
+    },
+    'lucid': {
+        'insight': "Lucid dreaming shows a high level of self-awareness and cognitive control. It's an excellent state for creative problem-solving.",
+        'recommendation': "Try setting a 'creative intention' before sleep if you become lucid—ask your subconscious for a solution to a problem."
+    },
+    'recurring': {
+        'insight': "Recurring dreams mean your subconscious is really trying to get your attention on a specific unresolved theme.",
+        'recommendation': "Focus on the *last* thing that happens in the dream. That's often where the 'stuck' point is. Try to imagine a different ending."
+    }
+}
 
-def generate_insights(days=7):
+def generate_insights(user_id, days=7, language='en'):
     """
-    Generate insights based on recent dreams and sleep data.
-    
-    Args:
-        days: Number of days to analyze (default 7)
-        
-    Returns:
-        dict containing insights, health tips, and recommendations
+    Generate advanced, dynamic insights based on dream and sleep data.
     """
-    dreams = Dream.get_recent(days)
-    sleep_records = SleepRecord.get_recent(days)
+    print(f"[Insights] Generating insights for user {user_id} over {days} days in {language}")
+    dreams = Dream.get_recent(user_id, days)
+    sleep_records = SleepRecord.get_recent(user_id, days)
     
-    insights = []
-    recommendations = []
-    health_tips = []
+    analysis = {
+        'insights': [],
+        'recommendations': [],
+        'health_tips': [],
+        'stats': get_empty_stats(),
+        'period_days': days
+    }
     
     if not dreams:
-        insights.append({
+        analysis['insights'].append({
             'type': 'info',
-            'title': 'Start Your Dream Journal',
-            'message': 'Record your first dream to begin receiving personalized insights!'
+            'title': get_insight_template(language, 'unlock_title'),
+            'message': get_insight_template(language, 'unlock_message')
         })
-        return {
-            'insights': insights,
-            'recommendations': recommendations,
-            'health_tips': health_tips,
-            'stats': get_empty_stats()
-        }
+        return analysis
     
-    # Analyze emotions
-    emotion_counts = Counter()
-    sentiment_counts = Counter()
-    all_keywords = []
+    # 1. Emotional Distribution Analysis
+    emotions = [d.primary_emotion for d in dreams if d.primary_emotion]
+    emotion_counts = Counter(emotions)
     
-    for dream in dreams:
-        if dream.primary_emotion:
-            emotion_counts[dream.primary_emotion] += 1
-        if dream.sentiment:
-            sentiment_counts[dream.sentiment] += 1
-        if dream.keywords:
-            all_keywords.extend(dream.keywords)
-    
-    # Most common emotion
     if emotion_counts:
         top_emotion, count = emotion_counts.most_common(1)[0]
-        percentage = round(count / len(dreams) * 100)
+        perc = round(count / len(dreams) * 100)
         
-        insights.append({
+        # Localized Emotion Name
+        translated_emotion = get_translation(language, f'emotion_{top_emotion}', top_emotion.capitalize())
+        
+        # Dynamic Message using template
+        msg = get_insight_template(language, 'emotion_focus_msg', perc=perc, emotion=translated_emotion)
+        if perc > 60:
+            msg += get_insight_template(language, 'strong_pattern')
+        
+        analysis['insights'].append({
             'type': 'emotion',
-            'title': f'Dominant Emotion: {top_emotion.title()}',
-            'message': f'{percentage}% of your dreams in the last {days} days expressed {top_emotion}.',
+            'title': get_insight_template(language, 'emotion_focus_title', emotion=translated_emotion),
+            'message': msg,
             'data': dict(emotion_counts)
         })
         
-        # Get health tips for this emotion
-        if top_emotion in HEALTH_TIPS:
-            tip_data = HEALTH_TIPS[top_emotion]
-            health_tips.append({
+        # Add emotion-specific content (localized later if needed)
+        if top_emotion in EMOTIONAL_INSIGHTS:
+            data = EMOTIONAL_INSIGHTS[top_emotion]
+            analysis['health_tips'].append({
                 'category': 'emotional',
-                'emotion': top_emotion,
-                'title': tip_data['title'],
-                'insight': tip_data['insight'],
-                'tips': tip_data['tips']
+                'title': f'Navigating {translated_emotion}',
+                'insight': random.choice(data['insights']),
+                'tips': random.sample(data['recommendations'], min(3, len(data['recommendations'])))
             })
+
+    # 2. Dream Category Analysis
+    all_categories = []
+    for d in dreams:
+        if hasattr(d, 'categories') and d.categories:
+            all_categories.extend(d.categories)
     
-    # Sentiment analysis
-    if sentiment_counts:
-        negative_count = sentiment_counts.get('negative', 0)
-        positive_count = sentiment_counts.get('positive', 0)
-        
-        if negative_count > positive_count and negative_count > len(dreams) * 0.5:
-            insights.append({
-                'type': 'warning',
-                'title': 'Many Negative Dreams',
-                'message': f'You\'ve had {negative_count} negative dreams recently. This might indicate stress or anxiety.'
+    cat_counts = Counter(all_categories)
+    for cat, count in cat_counts.items():
+        if cat in CATEGORY_INSIGHTS and count >= 1:
+            analysis['insights'].append({
+                'type': 'category',
+                'title': f'Type: {cat.capitalize()}',
+                'message': f"You've experienced {count} {cat} dream(s) recently. {CATEGORY_INSIGHTS[cat]['insight']}"
             })
-            # Add nightmare reduction tips
-            health_tips.append({
-                'category': 'sleep',
-                'title': SLEEP_HEALTH_TIPS['negative_dreams']['title'],
-                'tips': SLEEP_HEALTH_TIPS['negative_dreams']['tips']
+            analysis['recommendations'].append({
+                'priority': 'medium',
+                'title': f'Handle {cat.capitalize()} Dreams',
+                'message': CATEGORY_INSIGHTS[cat]['recommendation']
             })
-        elif positive_count > negative_count:
-            insights.append({
-                'type': 'positive',
-                'title': 'Positive Dream Trend!',
-                'message': f'Great news! {positive_count} of your recent dreams had positive vibes.'
-            })
+
+    # 3. Sentiment & Stress Patterns
+    sentiments = Counter([d.sentiment for d in dreams if d.sentiment])
+    neg_count = sentiments.get('negative', 0)
+    neg_p = round(neg_count / len(dreams) * 100) if dreams else 0
     
-    # Keyword themes
-    if all_keywords:
-        keyword_counts = Counter(all_keywords)
-        top_keywords = keyword_counts.most_common(5)
-        
-        insights.append({
-            'type': 'themes',
-            'title': 'Recurring Themes',
-            'message': 'These themes appear frequently in your dreams:',
-            'data': [{'keyword': kw, 'count': c} for kw, c in top_keywords]
+    if neg_p > 50:
+        analysis['insights'].append({
+            'type': 'warning',
+            'title': get_insight_template(language, 'high_intensity_title'),
+            'message': get_insight_template(language, 'high_intensity_msg', perc=neg_p)
         })
-    
-    # Sleep quality analysis
+        analysis['recommendations'].append({
+            'priority': 'high',
+            'title': get_insight_template(language, 'mental_unloading_title'),
+            'message': get_insight_template(language, 'mental_unloading_msg')
+        })
+
+    # 4. Sleep & Dream Correlation
     if sleep_records:
-        avg_quality = sum(r.quality_rating for r in sleep_records if r.quality_rating) / len(sleep_records)
-        avg_duration = sum(r.duration_hours for r in sleep_records) / len(sleep_records)
-        total_wakeups = sum(r.wakeups for r in sleep_records if r.wakeups)
-        avg_wakeups = total_wakeups / len(sleep_records)
+        avg_q = sum(r.quality_rating for r in sleep_records if r.quality_rating) / len(sleep_records)
+        avg_d = sum(r.duration_hours for r in sleep_records) / len(sleep_records)
         
-        # Low quality sleep
-        if avg_quality < 5:
-            insights.append({
+        if avg_q < 5 and neg_p > 40:
+            analysis['insights'].append({
                 'type': 'sleep',
-                'title': 'Low Sleep Quality Detected',
-                'message': f'Your average sleep quality is {avg_quality:.1f}/10. This may be affecting your dreams and overall health.'
+                'title': get_insight_template(language, 'sleep_cycle_title'),
+                'message': get_insight_template(language, 'sleep_cycle_msg')
             })
-            health_tips.append({
-                'category': 'sleep',
-                'title': SLEEP_HEALTH_TIPS['poor_quality']['title'],
-                'tips': SLEEP_HEALTH_TIPS['poor_quality']['tips']
+            
+        if avg_d < 6.5:
+            analysis['recommendations'].append({
+                'priority': 'high',
+                'title': get_insight_template(language, 'length_priority_title'),
+                'message': get_insight_template(language, 'length_priority_msg', avg_d=round(avg_d, 1))
             })
-        
-        # Short sleep duration
-        if avg_duration < 6:
-            insights.append({
-                'type': 'warning',
-                'title': 'Insufficient Sleep Duration',
-                'message': f'You\'re averaging {avg_duration:.1f} hours per night. Adults need 7-9 hours for optimal health.'
+
+    # 5. Keyword/Symbol Trend Analysis
+    all_keywords = [kw for d in dreams for kw in (d.keywords or [])]
+    kw_counts = Counter(all_keywords)
+    if kw_counts:
+        top_kw, kw_count = kw_counts.most_common(1)[0]
+        if kw_count > 1:
+            analysis['insights'].append({
+                'type': 'themes',
+                'title': get_insight_template(language, 'symbol_theme_title', symbol=top_kw.capitalize()),
+                'message': get_insight_template(language, 'symbol_theme_msg', symbol=top_kw, count=kw_count)
             })
-            health_tips.append({
-                'category': 'sleep',
-                'title': SLEEP_HEALTH_TIPS['short_duration']['title'],
-                'tips': SLEEP_HEALTH_TIPS['short_duration']['tips']
-            })
-        
-        # Many wakeups
-        if avg_wakeups >= 2:
-            insights.append({
-                'type': 'info',
-                'title': 'Frequent Night Wakeups',
-                'message': f'You\'re waking up an average of {avg_wakeups:.1f} times per night.'
-            })
-            health_tips.append({
-                'category': 'sleep',
-                'title': SLEEP_HEALTH_TIPS['many_wakeups']['title'],
-                'tips': SLEEP_HEALTH_TIPS['many_wakeups']['tips']
-            })
-        
-        # Positive sleep feedback
-        if avg_quality >= 7 and avg_duration >= 7:
-            insights.append({
-                'type': 'positive',
-                'title': 'Great Sleep Health!',
-                'message': 'You\'re getting quality sleep with enough duration. Keep up the good work!'
-            })
-    
-    # Generate general recommendations
-    recommendations = generate_recommendations(emotion_counts, sentiment_counts, sleep_records)
-    
-    # Calculate stats
-    stats = {
+
+    # 6. Sentiment Balance
+    pos_dreams = sentiments.get('positive', 0)
+    if pos_dreams > 0 and pos_dreams >= len(dreams) / 2:
+        analysis['insights'].append({
+            'type': 'positive',
+            'title': get_insight_template(language, 'vitality_title'),
+            'message': get_insight_template(language, 'vitality_msg')
+        })
+
+    # 7. Weekly Summary Stats
+    analysis['stats'] = {
         'total_dreams': len(dreams),
         'total_sleep_records': len(sleep_records),
         'emotion_breakdown': dict(emotion_counts),
-        'sentiment_breakdown': dict(sentiment_counts),
-        'avg_sleep_quality': SleepRecord.get_average_quality(days),
-        'avg_sleep_duration': SleepRecord.get_average_duration(days),
-        'top_keywords': [kw for kw, _ in Counter(all_keywords).most_common(10)]
+        'sentiment_breakdown': dict(sentiments),
+        'avg_sleep_quality': round(avg_q, 1) if sleep_records else None,
+        'avg_sleep_duration': round(avg_d, 1) if sleep_records else None,
+        'top_keywords': [kw for kw, _ in kw_counts.most_common(12)]
     }
     
-    return {
-        'insights': insights,
-        'recommendations': recommendations,
-        'health_tips': health_tips,
-        'stats': stats,
-        'period_days': days
-    }
-
-
-def generate_recommendations(emotion_counts, sentiment_counts, sleep_records):
-    """Generate personalized recommendations based on analysis."""
-    recommendations = []
+    return analysis
     
-    # Based on emotions
-    top_emotions = emotion_counts.most_common(2)
-    for emotion, _ in top_emotions:
-        if emotion == 'fear':
-            recommendations.append({
-                'priority': 'high',
-                'title': 'Relaxation Before Bed',
-                'message': 'Try 10 minutes of deep breathing or meditation before sleep to calm anxiety.'
-            })
-        elif emotion == 'sadness':
-            recommendations.append({
-                'priority': 'medium',
-                'title': 'Daytime Journaling',
-                'message': 'Write about your feelings during the day to process emotions before they appear in dreams.'
-            })
-        elif emotion == 'anger':
-            recommendations.append({
-                'priority': 'high',
-                'title': 'Physical Activity',
-                'message': 'Exercise earlier in the day to release tension and promote calmer sleep.'
-            })
-    
-    # Based on sentiment
-    negative_count = sentiment_counts.get('negative', 0)
-    positive_count = sentiment_counts.get('positive', 0)
-    
-    if negative_count > positive_count:
-        recommendations.append({
-            'priority': 'high',
-            'title': 'Digital Detox',
-            'message': 'Avoid news, social media, and work emails at least 1 hour before bed.'
-        })
-    
-    # Based on sleep
-    if sleep_records:
-        avg_quality = sum(r.quality_rating for r in sleep_records if r.quality_rating) / len(sleep_records)
-        
-        if avg_quality < 6:
-            recommendations.append({
-                'priority': 'high',
-                'title': 'Sleep Environment',
-                'message': 'Optimize your bedroom: keep it cool (65°F), dark, and quiet.'
-            })
-    
-    # Always include a positive recommendation
-    recommendations.append({
-        'priority': 'low',
-        'title': 'Consistent Dream Logging',
-        'message': 'Record dreams immediately upon waking for more accurate tracking and better insights.'
-    })
-    
-    return recommendations
-
+    return analysis
 
 def get_dream_analysis(dream_id):
     """Get detailed analysis for a specific dream with health context."""
@@ -352,10 +277,10 @@ def get_dream_analysis(dream_id):
     
     # Get emotional insight
     emotion = dream.primary_emotion
-    if emotion and emotion in HEALTH_TIPS:
-        tip_data = HEALTH_TIPS[emotion]
-        analysis['emotional_insight'] = tip_data['insight']
-        analysis['health_tips'] = tip_data['tips'][:3]  # Top 3 tips
+    if emotion and emotion in EMOTIONAL_INSIGHTS:
+        data = EMOTIONAL_INSIGHTS[emotion]
+        analysis['emotional_insight'] = random.choice(data['insights'])
+        analysis['health_tips'] = random.sample(data['recommendations'], min(3, len(data['recommendations'])))
     
     # Add sentiment context
     if dream.sentiment == 'negative':
@@ -368,31 +293,13 @@ def get_dream_analysis(dream_id):
     return analysis
 
 
-def get_empty_stats():
-    """Return empty stats structure."""
-    return {
-        'total_dreams': 0,
-        'total_sleep_records': 0,
-        'emotion_breakdown': {},
-        'sentiment_breakdown': {},
-        'avg_sleep_quality': None,
-        'avg_sleep_duration': None,
-        'top_keywords': []
-    }
-
-
-def get_trends(days=30):
+def get_trends(user_id, days=30):
     """
     Get trend data for charts.
-    
-    Args:
-        days: Number of days to analyze
-        
-    Returns:
-        dict with daily emotion and sleep trend data
     """
-    dreams = Dream.get_recent(days)
-    sleep_records = SleepRecord.get_recent(days)
+    print(f"[Trends] Fetching trends for user {user_id} over {days} days")
+    dreams = Dream.get_recent(user_id, days)
+    sleep_records = SleepRecord.get_recent(user_id, days)
     
     # Group dreams by date and pre-calculate emotion counts
     dream_by_date = {}
@@ -450,4 +357,16 @@ def get_trends(days=30):
         'emotions': emotion_trends,
         'sleep': sleep_trends,
         'period_days': days
+    }
+
+
+def get_empty_stats():
+    return {
+        'total_dreams': 0,
+        'total_sleep_records': 0,
+        'emotion_breakdown': {},
+        'sentiment_breakdown': {},
+        'avg_sleep_quality': None,
+        'avg_sleep_duration': None,
+        'top_keywords': []
     }

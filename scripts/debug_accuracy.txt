@@ -1,0 +1,38 @@
+﻿Description                         | Expected           | Actual             | Status
+------------------------------------------------------------------------------------------
+Loading emotion detection model...
+Emotion model loaded!
+Loading sentiment analysis model...
+Sentiment model loaded!
+Loading SpaCy language model...
+SpaCy model loaded!
+EN Positive/Garden                  | E:joy     S:positive | E:joy     S:positive | PASSED
+EN Hope/Light (Context Weight)      | E:joy     S:positive | E:joy     S:positive | PASSED
+EN Literal/Neutral                  | E:neutral S:neutral | E:neutral S:neutral | PASSED
+EN Safety (Boost)                   | E:joy     S:positive | E:joy     S:positive | PASSED
+EN Achievement                      | E:joy     S:positive | E:joy     S:positive | PASSED
+HI Joy/Clouds                       | E:joy     S:positive | E:joy     S:positive | PASSED
+HI Fear/Chase                       | E:fear    S:negative | E:fear    S:negative | PASSED
+HI Peace (Context Boost)            | E:joy     S:positive | E:joy     S:positive | PASSED
+HI Spiritual/Light                  | E:joy     S:positive | E:joy     S:positive | PASSED
+DEBUG FAIL: HI Neutral/Place
+  Input: αñòαñ▓ αñ«αÑêαñéαñ¿αÑç αñÅαñò αñÿαñ░ αñªαÑçαñûαñ╛ αñ£αñ╣αñ╛αñü αñòαÑïαñê αñ¿αñ╣αÑÇαñé αñÑαñ╛αÑñ
+  Emo Scores: {'joy': 0.0094, 'sadness': 0.0285, 'anger': 0.0395, 'fear': 0.0049, 'surprise': 0.0472, 'love': 0.0028, 'neutral': 0.7996}
+  Sent Score: 0.5
+  Context Boosts: None
+HI Neutral/Place                    | E:neutral S:neutral | E:joy     S:positive | FAILED
+MR Joy/Flying                       | E:joy     S:positive | E:joy     S:positive | PASSED
+MR Fear/Abyss                       | E:fear    S:negative | E:fear    S:negative | PASSED
+MR Victory/Success                  | E:joy     S:positive | E:joy     S:positive | PASSED
+MR Nature/Peace                     | E:joy     S:positive | E:joy     S:positive | PASSED
+MR Friends/Love                     | E:joy     S:positive | E:joy     S:positive | PASSED
+Hinglish Positive/Friends           | E:joy     S:positive | E:joy     S:positive | PASSED
+Hinglish Fear/Snake                 | E:fear    S:negative | E:fear    S:negative | PASSED
+Hinglish Victory                    | E:joy     S:positive | E:joy     S:positive | PASSED
+Hinglish Driving/Neutral            | E:neutral S:neutral | E:neutral S:neutral | PASSED
+Hinglish Mixed/Win Overrides Snake  | E:joy     S:positive | E:joy     S:positive | PASSED
+Hinglish Anxiety/Exam               | E:fear    S:negative | E:fear    S:negative | PASSED
+------------------------------------------------------------------------------------------
+Total Accuracy: 95.2% (20/21)
+
+SOME TESTS FAILED. FIXING REQUIRED.

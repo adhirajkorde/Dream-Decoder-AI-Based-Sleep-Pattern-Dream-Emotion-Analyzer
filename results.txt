@@ -1,0 +1,43 @@
+
+==================================================
+TEST CASE: FLYING CAR DREAM
+==================================================
+Loading emotion detection model...
+Emotion model loaded!
+Loading sentiment analysis model...
+Sentiment model loaded!
+Loading SpaCy language model...
+SpaCy model loaded!
+Dream: I was driving a flying car through a small city. I felt very happy and excited, everything was moving so fast!
+Detected Keywords: ['flying', 'car', 'driving', 'fly car', 'small city', 'drive', 'fly', 'small', 'city', 'feel', 'happy', 'excited', 'move']
+Primary Emotion: joy
+Sentiment: positive
+------------------------------
+Interpretation:
+Overall: Your dream weaves together symbols of flying, fast with a strong joy emotional undercurrent. The interaction of these elements suggests you are currently navigating a phase of inner growth.  The presence of flying suggests this is a core theme regarding your deep-seated ambitions or desire for freedom. Ultimately, your subconscious is bringing these specific details to your attention to help you process your experiences.
+DEBUG_LOW: your dream weaves together symbols of flying, fast with a strong joy emotional undercurrent. the interaction of these elements suggests you are currently navigating a phase of inner growth.  the presence of flying suggests this is a core theme regarding your deep-seated ambitions or desire for freedom. ultimately, your subconscious is bringing these specific details to your attention to help you process your experiences.
+
+Numbered Elements:
+1. Flying (Weight: 3)
+   Symbolic Meaning: freedom, ambition, escape, transcendence
+2. Fast (Weight: 2)
+   Symbolic Meaning: progress, life momentum, rapid change
+3. City (Weight: 2)
+   Symbolic Meaning: social life, career, community, perspective shift
+
+Final Insight: Your subconscious is celebrating your current path. Carry this positive energy with you into your waking hours.
+
+[CHECK] Preprocessing: Flying=True, Car=True
+[CHECK] Consistency (Joy != Negative): True
+[CHECK] Conflict Detection (No 'inner conflict'): True
+[CHECK] Weighting (Flying is top): True
+
+==================================================
+TEST CASE: DARK FOREST (CONFLICT)
+==================================================
+Dream: I was lost in a dark forest and felt very scared. Something was chasing me.
+Primary Emotion: fear
+Sentiment: positive
+Overall Interpretation: Your dream weaves together symbols of chasing, dark with a strong fear emotional undercurrent. The interaction of these elements suggests you are currently navigating a phase of inner growth. Ultimately, your subconscious is bringing these specific details to your attention to help you process your experiences.
+
+[CHECK] Conflict Detection (Has 'inner conflict'): False

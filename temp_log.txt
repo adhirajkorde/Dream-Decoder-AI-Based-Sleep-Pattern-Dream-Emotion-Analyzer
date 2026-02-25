@@ -1,0 +1,50 @@
+============================================================
+Dream Decoder - Starting Server
+============================================================
+
+Server running at http://localhost:5000
+Press Ctrl+C to stop
+
+ * Serving Flask app 'app'
+ * Debug mode: on
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.33:5000
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 963-183-369
+ * Detected change in 'C:\\Users\\ADHIRAJ KORDE\\OneDrive\\Desktop\\Dream-Decoder-AI-Based-Sleep-Pattern-Dream-Emotion-Analyzer\\backend\\routes\\auth.py', reloading
+============================================================
+Dream Decoder - Starting Server
+============================================================
+
+Server running at http://localhost:5000
+Press Ctrl+C to stop
+
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 963-183-369
+ * Detected change in 'C:\\Users\\ADHIRAJ KORDE\\OneDrive\\Desktop\\Dream-Decoder-AI-Based-Sleep-Pattern-Dream-Emotion-Analyzer\\backend\\models\\user.py', reloading
+============================================================
+Dream Decoder - Starting Server
+============================================================
+
+Server running at http://localhost:5000
+Press Ctrl+C to stop
+
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 963-183-369
+ * Detected change in 'C:\\Users\\ADHIRAJ KORDE\\OneDrive\\Desktop\\Dream-Decoder-AI-Based-Sleep-Pattern-Dream-Emotion-Analyzer\\backend\\routes\\auth.py', reloading
+============================================================
+Dream Decoder - Starting Server
+============================================================
+
+Server running at http://localhost:5000
+Press Ctrl+C to stop
+
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 963-183-369

@@ -10,9 +10,10 @@ from backend.database.db import get_db_connection
 class SleepRecord:
     """Sleep record model for database operations."""
     
-    def __init__(self, id=None, date=None, duration_hours=None, wakeups=0,
+    def __init__(self, id=None, user_id=None, date=None, duration_hours=None, wakeups=0,
                  quality_rating=None, notes=None, created_at=None):
         self.id = id
+        self.user_id = user_id
         self.date = date
         self.duration_hours = duration_hours
         self.wakeups = wakeups
@@ -40,6 +41,7 @@ class SleepRecord:
         
         return SleepRecord(
             id=row['id'],
+            user_id=row['user_id'],
             date=row['date'],
             duration_hours=row['duration_hours'],
             wakeups=row['wakeups'],
@@ -56,9 +58,10 @@ class SleepRecord:
             if self.id is None:
                 # Insert new record
                 cursor.execute('''
-                    INSERT INTO sleep_records (date, duration_hours, wakeups, quality_rating, notes)
-                    VALUES (?, ?, ?, ?, ?)
+                    INSERT INTO sleep_records (user_id, date, duration_hours, wakeups, quality_rating, notes)
+                    VALUES (?, ?, ?, ?, ?, ?)
                 ''', (
+                    self.user_id,
                     self.date,
                     self.duration_hours,
                     self.wakeups,
@@ -93,14 +96,14 @@ class SleepRecord:
         return self
     
     @staticmethod
-    def get_all(limit=100, offset=0):
-        """Get all sleep records, ordered by most recent first."""
+    def get_all(user_id, limit=100, offset=0):
+        """Get all sleep records for a user, ordered by most recent first."""
         with get_db_connection() as conn:
             cursor = conn.cursor()
             
             cursor.execute('''
-                SELECT * FROM sleep_records ORDER BY date DESC LIMIT ? OFFSET ?
-            ''', (limit, offset))
+                SELECT * FROM sleep_records WHERE user_id=? ORDER BY date DESC LIMIT ? OFFSET ?
+            ''', (user_id, limit, offset))
             
             rows = cursor.fetchall()
             return [SleepRecord.from_row(row) for row in rows]
@@ -126,59 +129,69 @@ class SleepRecord:
             return SleepRecord.from_row(row)
     
     @staticmethod
-    def delete(record_id):
-        """Delete a sleep record by ID."""
+    def delete(record_id, user_id):
+        """Delete a sleep record by ID, ensuring it belongs to the user."""
         with get_db_connection() as conn:
             cursor = conn.cursor()
             
-            cursor.execute('DELETE FROM sleep_records WHERE id=?', (record_id,))
+            cursor.execute('DELETE FROM sleep_records WHERE id=? AND user_id=?', (record_id, user_id))
             deleted = cursor.rowcount > 0
             
             conn.commit()
             return deleted
     
     @staticmethod
-    def get_recent(days=7):
-        """Get sleep records from the last N days."""
+    def get_recent(user_id, days=7):
+        """Get sleep records from the last N days for a user."""
         with get_db_connection() as conn:
             cursor = conn.cursor()
             
             cursor.execute('''
                 SELECT * FROM sleep_records 
-                WHERE date >= date('now', '-' || ? || ' days')
+                WHERE user_id=? AND date >= date('now', '-' || ? || ' days')
                 ORDER BY date DESC
-            ''', (days,))
+            ''', (user_id, days))
             
             rows = cursor.fetchall()
             return [SleepRecord.from_row(row) for row in rows]
     
     @staticmethod
-    def get_average_quality(days=7):
-        """Get average sleep quality for the last N days."""
+    def get_average_quality(user_id, days=7):
+        """Get average sleep quality for the last N days for a user."""
         with get_db_connection() as conn:
             cursor = conn.cursor()
             
             cursor.execute('''
                 SELECT AVG(quality_rating) as avg_quality 
                 FROM sleep_records 
-                WHERE date >= date('now', '-' || ? || ' days')
+                WHERE user_id=? AND date >= date('now', '-' || ? || ' days')
                 AND quality_rating IS NOT NULL
-            ''', (days,))
+            ''', (user_id, days))
             
             row = cursor.fetchone()
             return row['avg_quality'] if row and row['avg_quality'] else None
     
     @staticmethod
-    def get_average_duration(days=7):
-        """Get average sleep duration for the last N days."""
+    def get_average_duration(user_id, days=7):
+        """Get average sleep duration for the last N days for a user."""
         with get_db_connection() as conn:
             cursor = conn.cursor()
             
             cursor.execute('''
                 SELECT AVG(duration_hours) as avg_duration 
                 FROM sleep_records 
-                WHERE date >= date('now', '-' || ? || ' days')
-            ''', (days,))
+                WHERE user_id=? AND date >= date('now', '-' || ? || ' days')
+            ''', (user_id, days))
             
             row = cursor.fetchone()
             return row['avg_duration'] if row and row['avg_duration'] else None
+    
+    @staticmethod
+    def delete_all(user_id):
+        """Delete all sleep records for a user."""
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute('DELETE FROM sleep_records WHERE user_id=?', (user_id,))
+            deleted_count = cursor.rowcount
+            conn.commit()
+            return deleted_count

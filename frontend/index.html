@@ -25,10 +25,25 @@
         <header class="app-header">
             <div class="logo">
                 <span class="logo-icon">🌙</span>
-                <h1>Dream Decoder</h1>
+                <h1 data-i18n="app_name">Dream Decoder</h1>
             </div>
-            <p class="tagline">AI-Powered Dream Analysis</p>
+            <p class="tagline" data-i18n="tagline">AI-Powered Dream Analysis</p>
+
+
+            <!-- User Menu -->
+            <div class="user-menu">
+                <button class="user-menu-btn" id="userMenuBtn">
+                    <span id="usernameDisplay">User</span>
+                    <span>▼</span>
+                </button>
+                <div class="user-menu-dropdown" id="userMenuDropdown" style="display: none;">
+                    <button id="logoutBtn" data-i18n="btn_logout">🚪 Logout</button>
+                    <button id="deleteAccountBtn" class="danger" data-i18n="btn_delete_account">🗑️ Delete
+                        Account</button>
+                </div>
+            </div>
         </header>
+
 
         <!-- Main Content -->
         <main class="main-content">
@@ -160,6 +175,10 @@
                         <div class="card sleep-history-card">
                             <div class="card-header">
                                 <h2>📋 Sleep Records</h2>
+                                <button id="delete-all-sleep" class="btn btn-ghost danger small"
+                                    title="Delete All History">
+                                    <span>🗑️ Delete All</span>
+                                </button>
                             </div>
                             <div class="card-body">
                                 <div class="sleep-stats" id="sleep-stats">
@@ -356,7 +375,16 @@
         <div id="toast-container" class="toast-container"></div>
     </div>
 
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p class="loading-text" data-i18n="loading_analysis">Analyzing your dream...</p>
+    </div>
+
     <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/auth-init.js"></script>
     <script src="js/api.js"></script>
     <script src="js/charts.js"></script>
     <script src="js/app.js"></script>

@@ -330,6 +330,7 @@ function renderKeywordsCloud(keywords) {
 function formatDate(dateStr) {
     if (!dateStr) return '';
     const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return dateStr; // Return original string if invalid
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 

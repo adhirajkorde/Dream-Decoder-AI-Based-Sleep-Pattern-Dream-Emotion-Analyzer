@@ -39,8 +39,8 @@ def create_sleep_record():
     except (ValueError, TypeError):
         return jsonify({'error': 'Invalid duration or wakeup count'}), 400
     
-    # Check if record already exists for this date
-    existing = SleepRecord.get_by_date(data['date'])
+    # Check if record already exists for this date and user
+    existing = SleepRecord.get_by_date(user.id, data['date'])
     if existing:
         # Update existing record
         record.id = existing.id

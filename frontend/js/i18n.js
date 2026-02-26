@@ -8,7 +8,7 @@ const translations = {
     en: {
         // App Header
         app_name: 'Dream Decoder',
-        tagline: 'AI-Powered Dream Analysis',
+        tagline: 'Advanced Dream Analysis & Insights',
 
         // Navigation
         nav_journal: 'Dream Journal',
@@ -238,7 +238,7 @@ const translations = {
     hinglish: {
         // App Header
         app_name: 'Dream Decoder',
-        tagline: 'AI-Powered Sapno Ka Analysis',
+        tagline: 'Sapno Ka Advanced Analysis',
 
         // Navigation
         nav_journal: 'Dream Journal',

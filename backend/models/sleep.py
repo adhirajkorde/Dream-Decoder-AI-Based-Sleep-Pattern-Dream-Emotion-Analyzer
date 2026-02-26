@@ -119,12 +119,12 @@ class SleepRecord:
             return SleepRecord.from_row(row)
     
     @staticmethod
-    def get_by_date(record_date):
-        """Get sleep record for a specific date."""
+    def get_by_date(user_id, record_date):
+        """Get sleep record for a specific date and user."""
         with get_db_connection() as conn:
             cursor = conn.cursor()
             
-            cursor.execute('SELECT * FROM sleep_records WHERE date=?', (record_date,))
+            cursor.execute('SELECT * FROM sleep_records WHERE user_id=? AND date=?', (user_id, record_date))
             row = cursor.fetchone()
             return SleepRecord.from_row(row)
     

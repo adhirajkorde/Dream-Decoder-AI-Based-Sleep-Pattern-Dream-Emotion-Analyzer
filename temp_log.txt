@@ -48,3 +48,102 @@ Press Ctrl+C to stop
  * Restarting with stat
  * Debugger is active!
  * Debugger PIN: 963-183-369
+ * Detected change in 'C:\\Users\\ADHIRAJ KORDE\\OneDrive\\Desktop\\Dream-Decoder-AI-Based-Sleep-Pattern-Dream-Emotion-Analyzer\\backend\\services\\emotion_analyzer.py', reloading
+============================================================
+Dream Decoder - Starting Server
+============================================================
+
+Server running at http://localhost:5000
+Press Ctrl+C to stop
+
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 963-183-369
+ * Detected change in 'C:\\Users\\ADHIRAJ KORDE\\OneDrive\\Desktop\\Dream-Decoder-AI-Based-Sleep-Pattern-Dream-Emotion-Analyzer\\backend\\services\\keyword_extractor.py', reloading
+============================================================
+Dream Decoder - Starting Server
+============================================================
+
+Server running at http://localhost:5000
+Press Ctrl+C to stop
+
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 963-183-369
+ * Detected change in 'C:\\Users\\ADHIRAJ KORDE\\OneDrive\\Desktop\\Dream-Decoder-AI-Based-Sleep-Pattern-Dream-Emotion-Analyzer\\backend\\services\\dream_interpreter.py', reloading
+============================================================
+Dream Decoder - Starting Server
+============================================================
+
+Server running at http://localhost:5000
+Press Ctrl+C to stop
+
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 963-183-369
+ * Detected change in 'C:\\Users\\ADHIRAJ KORDE\\OneDrive\\Desktop\\Dream-Decoder-AI-Based-Sleep-Pattern-Dream-Emotion-Analyzer\\backend\\services\\nlp_engine.py', reloading
+============================================================
+Dream Decoder - Starting Server
+============================================================
+
+Server running at http://localhost:5000
+Press Ctrl+C to stop
+
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 963-183-369
+ * Detected change in 'C:\\Users\\ADHIRAJ KORDE\\OneDrive\\Desktop\\Dream-Decoder-AI-Based-Sleep-Pattern-Dream-Emotion-Analyzer\\backend\\services\\dream_interpreter.py', reloading
+============================================================
+Dream Decoder - Starting Server
+============================================================
+
+Server running at http://localhost:5000
+Press Ctrl+C to stop
+
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 963-183-369
+ * Detected change in 'C:\\Users\\ADHIRAJ KORDE\\OneDrive\\Desktop\\Dream-Decoder-AI-Based-Sleep-Pattern-Dream-Emotion-Analyzer\\tests\\runner.py', reloading
+============================================================
+Dream Decoder - Starting Server
+============================================================
+
+Server running at http://localhost:5000
+Press Ctrl+C to stop
+
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 963-183-369
+ * Detected change in 'C:\\Users\\ADHIRAJ KORDE\\OneDrive\\Desktop\\Dream-Decoder-AI-Based-Sleep-Pattern-Dream-Emotion-Analyzer\\backend\\services\\keyword_extractor.py', reloading
+============================================================
+Dream Decoder - Starting Server
+============================================================
+
+Server running at http://localhost:5000
+Press Ctrl+C to stop
+
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 963-183-369
+ * Detected change in 'C:\\Users\\ADHIRAJ KORDE\\OneDrive\\Desktop\\Dream-Decoder-AI-Based-Sleep-Pattern-Dream-Emotion-Analyzer\\backend\\services\\emotion_analyzer.py', reloading
+============================================================
+Dream Decoder - Starting Server
+============================================================
+
+Server running at http://localhost:5000
+Press Ctrl+C to stop
+
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 963-183-369
+ * Detected change in 'C:\\Users\\ADHIRAJ KORDE\\OneDrive\\Desktop\\Dream-Decoder-AI-Based-Sleep-Pattern-Dream-Emotion-Analyzer\\backend\\services\\emotion_analyzer.py', reloading
+============================================================
+Dream Decoder - Starting Server
+============================================================
+
+Server running at http://localhost:5000
+Press Ctrl+C to stop
+
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 963-183-369

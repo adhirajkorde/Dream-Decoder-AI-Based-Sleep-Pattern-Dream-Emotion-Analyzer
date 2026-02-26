@@ -14,7 +14,7 @@ class DreamPDF(FPDF):
         self.cell(0, 10, 'Dream Decoder', ln=True, align='C')
         self.set_font('helvetica', 'I', 10)
         self.set_text_color(87, 124, 142) # Ocean Mist
-        self.cell(0, 10, 'AI-Powered Dream Journal & Analysis', ln=True, align='C')
+        self.cell(0, 10, 'Dream Journal & Psychological Analysis', ln=True, align='C')
         self.ln(10)
 
     def footer(self):

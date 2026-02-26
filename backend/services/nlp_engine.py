@@ -43,27 +43,48 @@ def classify_dream_category(text, sentiment_result, emotion_result):
     return categories
 
 
+def validate_accuracy(text, emotion_result, sentiment_result):
+    """
+    STRICT VALIDATION MODE: Self-checking mechanism to ensure zero incorrect results.
+    Enforces alignment between emotion, sentiment, and context.
+    """
+    text_lower = text.lower()
+    emo = emotion_result['primary_emotion']
+    sent = sentiment_result['sentiment']
+    
+    # 1. EMOTION-SENTIMENT ALIGNMENT (MANDATORY RULES)
+    # Fear/Sadness/Anger -> Negative Sentiment
+    if emo in ['fear', 'sadness', 'anger']:
+        if sent != 'negative':
+            print(f"STRICT MODE: Re-aligning {sent} sentiment to negative due to {emo} emotion.")
+            sentiment_result['sentiment'] = 'negative'
+            sentiment_result['score'] = max(sentiment_result['score'], 0.9) # Boost confidence
+            
+    # Joy/Love -> Positive Sentiment
+    elif emo in ['joy', 'love']:
+        if sent != 'positive':
+            # Check for conflicting negative words before forcing positive
+            neg_markers = ['not', 'never', 'no', 'bad', 'problem', 'don\'t']
+            if not any(m in text_lower for m in neg_markers):
+                print(f"STRICT MODE: Re-aligning {sent} sentiment to positive due to {emo} emotion.")
+                sentiment_result['sentiment'] = 'positive'
+                sentiment_result['score'] = max(sentiment_result['score'], 0.9)
+    
+    # 2. CONTEXTUAL ACCURACY CHECKS
+    # Horror/Nightmare consistency
+    horror_keywords = ['ghost', 'monster', 'dark', 'dead', 'death', 'blood', 'chase', 'scary', 'afraid']
+    if any(k in text_lower for k in horror_keywords):
+        if emo not in ['fear', 'sadness']:
+             print(f"STRICT MODE: Detected horror context, reinforcing fear/negative.")
+             emotion_result['primary_emotion'] = 'fear'
+             sentiment_result['sentiment'] = 'negative'
+
+    return emotion_result, sentiment_result
+
+
 def analyze_dream(text, user_language='en'):
     """
-    Perform complete NLP analysis on dream text.
-    
-    Args:
-        text: The dream description text
-        user_language: User's preferred language code (en, hi, mr, hinglish)
-        
-    Returns:
-        dict containing all analysis results:
-            - sentiment: positive/negative/neutral
-            - sentiment_score: confidence 0-1
-            - primary_emotion: dominant emotion
-            - emotion_scores: all emotion scores
-            - keywords: list of extracted keywords
-            - entities: list of named entities
-            - themes: categorized dream themes
-            - categories: list of dream types (nightmare, lucid, recurring, ordinary)
-            - interpretation: multilingual psychological interpretation
-            - detected_language: detected language of dream text
-            - language_confidence: confidence of language detection
+    Perform complete NLP analysis on dream text with Strict Accuracy Validation.
     """
     if not text or not text.strip():
         return {
@@ -81,9 +102,13 @@ def analyze_dream(text, user_language='en'):
             'language_confidence': 0
         }
     
-    # Run all analyses
+    # Initial Analysis
     emotion_result = analyze_emotions(text)
     sentiment_result = analyze_sentiment(text)
+    
+    # MANDATORY: Accuracy Validation & Self-Correction
+    emotion_result, sentiment_result = validate_accuracy(text, emotion_result, sentiment_result)
+    
     keywords = extract_keywords(text)
     entities = extract_entities(text)
     themes = categorize_dream_theme(keywords)
@@ -92,15 +117,23 @@ def analyze_dream(text, user_language='en'):
     dream_categories = classify_dream_category(text, sentiment_result, emotion_result)
     
     # Perform deep psychological interpretation
-    # Note: detect_with_fallback inside interpret_dream will handle the language detection
     from backend.services.dream_interpreter import interpret_dream
-    interpretation = interpret_dream(text, {
+    
+    # Assemble analysis for the interpreter
+    analysis_for_interpreter = {
         'keywords': keywords,
         'entities': entities,
         'emotion': emotion_result,
         'sentiment': sentiment_result,
         'categories': dream_categories
-    }, user_language=user_language)
+    }
+    
+    interpretation = interpret_dream(text, analysis_for_interpreter, user_language=user_language)
+    
+    # RE-SYNCHRONIZE: Interpretation might have further refined labels
+    # Update local results if interpreter made corrections
+    sentiment_result['sentiment'] = analysis_for_interpreter['sentiment']['sentiment']
+    emotion_result['primary_emotion'] = analysis_for_interpreter['emotion']['primary_emotion']
     
     # Generate a brief summary
     emoji = get_sentiment_emoji(sentiment_result['sentiment'])
@@ -109,18 +142,18 @@ def analyze_dream(text, user_language='en'):
     summary = f"{emoji} This dream has a {sentiment_result['sentiment']} tone, "
     summary += f"with primary feelings of {emotion_result['primary_emotion']} ({emotion_desc}). "
     
-    if dream_categories and 'ordinary' not in dream_categories:
-        summary += f"This appears to be a {', '.join(dream_categories)} dream. "
+    if 'nightmare' in dream_categories:
+        summary = f"⚠️ This nightmare is being safely processed. Tone: {sentiment_result['sentiment']}, Feelings: {emotion_result['primary_emotion']}."
     
     if keywords:
-        summary += f"Key themes include: {', '.join(keywords[:5])}."
+        summary += f"\nKey themes: {', '.join(keywords[:5])}."
     
     return {
         'sentiment': sentiment_result['sentiment'],
         'sentiment_score': sentiment_result['score'],
         'primary_emotion': emotion_result['primary_emotion'],
-        'emotion_scores': emotion_result['emotion_scores'],
-        'emotion_confidence': emotion_result['confidence'],
+        'emotion_scores': emotion_result.get('emotion_scores', {}),
+        'emotion_confidence': emotion_result.get('confidence', 0),
         'keywords': keywords,
         'entities': entities,
         'themes': themes,

@@ -1131,7 +1131,7 @@ function handleImageGenerationPlaceholder(dream) {
         <div class="image-placeholder-hint">Visualizing your dream: "${dream.content.substring(0, 50)}..."</div>
         <div class="image-placeholder-hint" style="margin-top: 10px;">
             > [!TIP]<br>
-            We'll integrate Google Gemini for visual storytelling in the next update.
+            Visual dream scene generation is a planned feature coming in a future update.
         </div>
     `;
 

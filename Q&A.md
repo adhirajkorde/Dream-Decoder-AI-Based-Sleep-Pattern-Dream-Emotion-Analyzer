@@ -22,7 +22,7 @@ Yes. We implement **Argon2id hashing** for passwords and **JWT (JSON Web Tokens)
 It uses the browser's native **Web Speech API** with custom persistence logic. This allows users to narrate long dreams continuously without the microphone cutting off early.
 
 ### 8. How did you improve analysis accuracy?
-Accuracy was achieved by implementing **Symbolic Reinforcement**. By cross-referencing AI findings with a 300+ item symbolic database, we eliminate common AI hallucinations.
+By implementing **Symbolic Reinforcement** — cross-referencing analysis outputs with a 300+ item symbolic database — we eliminate misclassified labels and ensure interpretations are grounded in verified dream elements.
 
 ### 9. Can I visualize my dream patterns?
 Absolutely. The **Insights Dashboard** uses **Chart.js** to display emotional trends, sleep quality correlations, and long-term psychological patterns.

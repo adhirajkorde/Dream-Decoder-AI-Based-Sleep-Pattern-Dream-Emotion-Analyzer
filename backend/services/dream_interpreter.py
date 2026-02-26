@@ -143,7 +143,20 @@ def interpret_dream(text, nlp_analysis, user_language='en'):
     nlp_analysis['emotion'] = emo_data
     sentiment_data['sentiment'] = final_sentiment
     nlp_analysis['sentiment'] = sentiment_data
+            
+    # STRICT SYMBOL VERIFICATION (STRICT MODE)
+    # Remove any symbol that is not explicitly found as a keyword (substring) in the original text
+    original_text_lower = text.lower()
+    verified_symbols = []
+    for s in found_symbols:
+        keyword = s['keyword'].lower()
+        # Verify if the literal keyword or its lemma exists in the text
+        if keyword in original_text_lower:
+            verified_symbols.append(s)
     
+    found_symbols = verified_symbols
+    
+    # Sort by weight
     found_symbols.sort(key=lambda x: (x.get('weight', 1), len(x['keyword'])), reverse=True)
     
     # Extract elements from NLP analysis
@@ -161,16 +174,19 @@ def interpret_dream(text, nlp_analysis, user_language='en'):
             'emotion': symbol_data.get('emotion', 'neutral')
         })
     
+    # Generic element fallback (Only if NO verified symbols are found)
     if not numbered_elements and keywords:
         for i, keyword in enumerate(keywords[:3], 1):
-            numbered_elements.append({
-                'number': i,
-                'element': keyword.capitalize(),
-                'symbolic_meaning': _get_generic_meaning(interpretation_lang),
-                'subconscious_insight': _get_generic_insight(interpretation_lang),
-                'weight': 1,
-                'emotion': 'neutral'
-            })
+            # Only include keywords that actually exist in the text
+            if keyword.lower() in original_text_lower:
+                numbered_elements.append({
+                    'number': i,
+                    'element': keyword.capitalize(),
+                    'symbolic_meaning': _get_generic_meaning(interpretation_lang),
+                    'subconscious_insight': _get_generic_insight(interpretation_lang),
+                    'weight': 1,
+                    'emotion': 'neutral'
+                })
     
     overall_interpretation = _generate_overall_interpretation(
         numbered_elements, final_emotion, final_sentiment, keywords, interpretation_lang

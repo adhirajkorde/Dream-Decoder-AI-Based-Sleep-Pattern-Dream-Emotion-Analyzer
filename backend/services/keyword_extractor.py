@@ -63,6 +63,23 @@ def extract_keywords(text):
                 keywords_seen.add(theme)
                 final_keywords.append(theme)
     
+    # Exhaustive skip list for both chunks and single tokens
+    skip_words = {
+        'i', 'me', 'my', 'we', 'it', 'the', 'a', 'an', 'this', 'that', 'were', 'was',
+        'dream', 'night', 'felt', 'thought', 'think', 'saw', 'see', 'going', 'went',
+        'something', 'someone', 'everything', 'everyone', 'anything', 'around', 'back',
+        'happened', 'looking', 'seemed', 'actually', 'really', 'started', 'could', 'would',
+        'many', 'much', 'some', 'few', 'very', 'like', 'every', 'each', 'other', 'another',
+        'mujhe', 'hum', 'mera', 'meri', 'sath', 'u', 'i am', 'i was', 'was a', 'were in',
+        'felt like', 'didnt', 'dont', 'couldnt', 'wouldnt', 'shouldnt', 'thing', 'things',
+        'place', 'places', 'time', 'times', 'way', 'ways', 'bit', 'bits', 'lot', 'lots',
+        'mhe', 'mala', 'mazhe', 'tula', 'tuze', 'the', 'is', 'am', 'are', 'was', 'were',
+        'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'but', 'if', 'or',
+        'because', 'as', 'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against',
+        'between', 'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from',
+        'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once'
+    }
+
     # 2. Extract noun chunks (key phrases) - IMPROVED
     # This handles "flying car", "dark forest", etc.
     for chunk in doc.noun_chunks:
@@ -75,17 +92,11 @@ def extract_keywords(text):
         
         # Filter out very short or very long chunks
         if 2 <= len(chunk_text) <= 50:
-            # Skip common uninteresting words and dream fillers
-            skip_words = {
-                'i', 'me', 'my', 'we', 'it', 'the', 'a', 'an', 'this', 'that', 'were', 'was',
-                'dream', 'night', 'felt', 'thought', 'think', 'saw', 'see', 'going', 'went',
-                'something', 'someone', 'everything', 'everyone', 'anything', 'around', 'back',
-                'happened', 'looking', 'seemed', 'actually', 'really', 'started', 'could', 'would',
-                'many', 'much', 'some', 'few', 'very', 'like', 'every', 'each', 'other', 'another'
-            }
             if chunk_text not in skip_words and chunk_text not in keywords_seen:
-                keywords_seen.add(chunk_text)
-                final_keywords.append(chunk_text)
+                # Ensure no lone stop words or single characters
+                if len(chunk_text) > 2 and not all(word in skip_words for word in chunk_text.split()):
+                    keywords_seen.add(chunk_text)
+                    final_keywords.append(chunk_text)
     
     # 3. Extract important nouns, verbs, and adjectives (Selective POS Filtering)
     for token in doc:
@@ -98,13 +109,18 @@ def extract_keywords(text):
             lemma = token.lemma_.lower()
             
             # Avoid single-character or very common dream fillers
-            generic_fillers = {'get', 'take', 'make', 'come', 'go', 'see', 'look', 'know', 'think', 'feel'}
+            generic_fillers = {
+                'get', 'take', 'make', 'come', 'go', 'see', 'look', 'know', 'think', 'feel',
+                'keep', 'try', 'let', 'seem', 'happen', 'become', 'want', 'need', 'show'
+            }
             
+            # Exhaustive stop list again for single tokens
             if len(lemma) > 2 and lemma not in keywords_seen and lemma not in generic_fillers:
-                keywords_seen.add(lemma)
-                final_keywords.append(lemma)
+                if lemma not in skip_words: # Re-use the chunk skip words
+                    keywords_seen.add(lemma)
+                    final_keywords.append(lemma)
     
-    return final_keywords[:20]  # Limit to 20 keywords
+    return final_keywords[:15]  # Limit to 15 high-quality keywords
 
 
 

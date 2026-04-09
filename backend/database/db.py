@@ -44,8 +44,9 @@ def init_db():
                     conn.commit()
                     print("Database migration completed!")
                 else:
-                    # print("Database already initialized.")
-                    pass
+                    # Run column migrations for existing databases
+                    _migrate_columns_if_needed(cursor)
+                    conn.commit()
                 return
 
         # Create all tables from scratch
@@ -98,6 +99,8 @@ def _create_sleep_records_table(cursor):
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
             date DATE NOT NULL,
+            sleep_time TEXT,
+            wake_time TEXT,
             duration_hours REAL NOT NULL,
             wakeups INTEGER DEFAULT 0,
             quality_rating INTEGER,
@@ -174,6 +177,24 @@ def _migrate_existing_tables(cursor):
         
         # Drop backup
         cursor.execute('DROP TABLE sleep_records_backup')
+
+    # Run additional column migrations
+    _migrate_columns_if_needed(cursor)
+
+
+def _migrate_columns_if_needed(cursor):
+    """Check for and add any columns missing from existing tables."""
+    # Migration for sleep_time and wake_time columns
+    cursor.execute("PRAGMA table_info(sleep_records)")
+    columns = [col[1] for col in cursor.fetchall()]
+    
+    if 'sleep_time' not in columns:
+        print("Migrating sleep_records: adding sleep_time column")
+        cursor.execute('ALTER TABLE sleep_records ADD COLUMN sleep_time TEXT')
+    
+    if 'wake_time' not in columns:
+        print("Migrating sleep_records: adding wake_time column")
+        cursor.execute('ALTER TABLE sleep_records ADD COLUMN wake_time TEXT')
 
 
 if __name__ == '__main__':

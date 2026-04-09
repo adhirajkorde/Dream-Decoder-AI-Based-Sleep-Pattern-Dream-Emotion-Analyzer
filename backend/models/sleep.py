@@ -10,11 +10,13 @@ from backend.database.db import get_db_connection
 class SleepRecord:
     """Sleep record model for database operations."""
     
-    def __init__(self, id=None, user_id=None, date=None, duration_hours=None, wakeups=0,
-                 quality_rating=None, notes=None, created_at=None):
+    def __init__(self, id=None, user_id=None, date=None, sleep_time=None, wake_time=None,
+                 duration_hours=None, wakeups=0, quality_rating=None, notes=None, created_at=None):
         self.id = id
         self.user_id = user_id
         self.date = date
+        self.sleep_time = sleep_time
+        self.wake_time = wake_time
         self.duration_hours = duration_hours
         self.wakeups = wakeups
         self.quality_rating = quality_rating
@@ -26,6 +28,8 @@ class SleepRecord:
         return {
             'id': self.id,
             'date': self.date.isoformat() if isinstance(self.date, (datetime, date)) else self.date,
+            'sleep_time': self.sleep_time,
+            'wake_time': self.wake_time,
             'duration_hours': self.duration_hours,
             'wakeups': self.wakeups,
             'quality_rating': self.quality_rating,
@@ -43,6 +47,8 @@ class SleepRecord:
             id=row['id'],
             user_id=row['user_id'],
             date=row['date'],
+            sleep_time=row['sleep_time'],
+            wake_time=row['wake_time'],
             duration_hours=row['duration_hours'],
             wakeups=row['wakeups'],
             quality_rating=row['quality_rating'],
@@ -58,11 +64,13 @@ class SleepRecord:
             if self.id is None:
                 # Insert new record
                 cursor.execute('''
-                    INSERT INTO sleep_records (user_id, date, duration_hours, wakeups, quality_rating, notes)
-                    VALUES (?, ?, ?, ?, ?, ?)
+                    INSERT INTO sleep_records (user_id, date, sleep_time, wake_time, duration_hours, wakeups, quality_rating, notes)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (
                     self.user_id,
                     self.date,
+                    self.sleep_time,
+                    self.wake_time,
                     self.duration_hours,
                     self.wakeups,
                     self.quality_rating,
@@ -72,11 +80,13 @@ class SleepRecord:
             else:
                 # Update existing record
                 cursor.execute('''
-                    UPDATE sleep_records SET date=?, duration_hours=?, wakeups=?,
-                           quality_rating=?, notes=?
+                    UPDATE sleep_records SET date=?, sleep_time=?, wake_time=?, duration_hours=?, 
+                           wakeups=?, quality_rating=?, notes=?
                     WHERE id=?
                 ''', (
                     self.date,
+                    self.sleep_time,
+                    self.wake_time,
                     self.duration_hours,
                     self.wakeups,
                     self.quality_rating,

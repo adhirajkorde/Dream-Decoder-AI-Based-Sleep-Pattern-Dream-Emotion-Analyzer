@@ -65,6 +65,10 @@
                     <span class="tab-icon">💡</span>
                     <span class="tab-text">Insights</span>
                 </button>
+                <button class="tab-btn" data-tab="jungian">
+                    <span class="tab-icon">🧠</span>
+                    <span class="tab-text">Jungian Psychology</span>
+                </button>
             </nav>
 
             <!-- Tab Panels -->
@@ -134,29 +138,25 @@
                             </div>
                             <div class="card-body">
                                 <form id="sleep-form">
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label for="sleep-date">Date</label>
-                                            <input type="date" id="sleep-date" name="date" required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="sleep-duration">Hours Slept</label>
-                                            <input type="number" id="sleep-duration" name="duration_hours" min="0"
-                                                max="24" step="0.5" placeholder="7.5" required>
-                                        </div>
+                                    <div class="form-group">
+                                        <label for="sleep-date">Date</label>
+                                        <input type="date" id="sleep-date" name="date" required>
                                     </div>
                                     <div class="form-row">
                                         <div class="form-group">
-                                            <label for="sleep-wakeups">Times Woken Up</label>
-                                            <input type="number" id="sleep-wakeups" name="wakeups" min="0" max="20"
-                                                value="0">
+                                            <label for="sleep-time">Slept at</label>
+                                            <input type="time" id="sleep-time" name="sleep_time" required>
                                         </div>
                                         <div class="form-group">
-                                            <label for="sleep-quality">Sleep Quality (1-10)</label>
-                                            <input type="range" id="sleep-quality" name="quality_rating" min="1"
-                                                max="10" value="5">
-                                            <span class="range-value" id="quality-value">5</span>
+                                            <label for="wake-time">Woke up</label>
+                                            <input type="time" id="wake-time" name="wake_time" required>
                                         </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="sleep-quality">Sleep Quality (1-10)</label>
+                                        <input type="range" id="sleep-quality" name="quality_rating" min="1"
+                                            max="10" value="5">
+                                        <span class="range-value" id="quality-value">5</span>
                                     </div>
                                     <div class="form-group">
                                         <label for="sleep-notes">Notes (optional)</label>
@@ -316,6 +316,34 @@
                                 </div>
                                 <!-- Recommendations moved here -->
                                 <div id="recommendations-list" class="recommendations-list-compact"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Jungian Psychology Panel -->
+                <section id="jungian-panel" class="tab-panel">
+                    <div class="card jungian-card">
+                        <div class="card-header">
+                            <h2>🧠 Jungian Psychology Analysis</h2>
+                            <button id="analyze-jungian-btn" class="btn btn-ghost">
+                                <span>🔄 Re-analyze</span>
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="jungian-empty-state" class="empty-state">
+                                <span class="empty-icon">🌟</span>
+                                <p>No dream selected for Jungian analysis</p>
+                                <p class="hint">Record a dream in the Journal tab first, then come back here for an
+                                    in-depth Jungian interpretation.</p>
+                            </div>
+                            <div id="jungian-result" class="jungian-result hidden">
+                                <div class="jungian-header">
+                                    <h3 id="jungian-title">Jungian Interpretation</h3>
+                                </div>
+                                <div id="jungian-content" class="jungian-content">
+                                    <!-- Dynamic content will be injected here -->
+                                </div>
                             </div>
                         </div>
                     </div>

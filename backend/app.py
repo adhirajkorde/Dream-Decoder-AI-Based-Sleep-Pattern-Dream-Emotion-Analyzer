@@ -10,6 +10,10 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from flask import Flask, send_from_directory, jsonify, request
 from flask_cors import CORS
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 from backend.config import DEBUG, HOST, PORT, CORS_ORIGINS
 from backend.database.db import init_db
@@ -95,6 +99,18 @@ if __name__ == '__main__':
     # preload_models()
     
     print(f"\nServer running at http://localhost:{PORT}")
+    
+    # Verify Gemini API Key
+    gemini_key = os.getenv("GEMINI_API_KEY")
+    if gemini_key:
+        # Check if it's the placeholder from .env.example
+        if gemini_key == "your_gemini_api_key_here":
+            print("❌ WARNING: GEMINI_API_KEY is still set to placeholder! Please update your .env file.")
+        else:
+            print(f"✅ GEMINI API KEY DETECTED ({gemini_key[:4]}...{gemini_key[-4:]})")
+    else:
+        print("❌ WARNING: GEMINI_API_KEY NOT FOUND IN ENVIRONMENT")
+        
     print("Press Ctrl+C to stop\n")
     
     app.run(host=HOST, port=PORT, debug=DEBUG)

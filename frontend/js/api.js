@@ -177,6 +177,17 @@ async function analyzeText(text) {
     });
 }
 
+/**
+ * Get Jungian specialized analysis
+ */
+async function getJungianAnalysis(text) {
+    return apiRequest('/api/analyze/jungian', {
+        method: 'POST',
+        body: JSON.stringify({ text }),
+    });
+}
+
+
 // ==========================================
 // INSIGHTS API
 // ==========================================

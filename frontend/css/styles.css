@@ -582,6 +582,7 @@ body::-webkit-scrollbar {
 
 input[type="text"],
 input[type="date"],
+input[type="time"],
 input[type="number"],
 textarea,
 select {
@@ -862,6 +863,13 @@ input[type="range"]::-webkit-slider-thumb {
 .sleep-item-date {
     font-weight: 500;
     font-size: 0.9rem;
+    color: var(--color-foam);
+}
+
+.sleep-item-times {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    margin-top: 2px;
 }
 
 .sleep-item-stats {

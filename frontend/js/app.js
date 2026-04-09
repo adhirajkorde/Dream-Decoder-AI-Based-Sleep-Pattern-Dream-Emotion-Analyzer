@@ -7,6 +7,8 @@
 // INITIALIZATION
 // ==========================================
 
+let lastDreamText = ''; // Store the latest dream text for Jungian analysis
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🌙 Dream Decoder - Initializing...');
 
@@ -123,6 +125,9 @@ function onTabChange(tabId) {
         case 'insights':
             loadInsights();
             break;
+        case 'jungian':
+            handleJungianTab();
+            break;
     }
 }
 
@@ -167,6 +172,18 @@ function initForms() {
             loadInsights();
         });
     }
+
+    // Jungian re-analyze button
+    const jungianBtn = document.getElementById('analyze-jungian-btn');
+    if (jungianBtn) {
+        jungianBtn.addEventListener('click', () => {
+            if (lastDreamText) {
+                performJungianAnalysis(lastDreamText);
+            } else {
+                showToast('warning', 'Please record a dream first.');
+            }
+        });
+    }
 }
 
 /**
@@ -192,6 +209,9 @@ async function handleDreamSubmit(e) {
     const contentInput = document.getElementById('dream-content');
     const submitBtn = document.getElementById('submit-dream');
     const content = contentInput.value.trim();
+
+    // Save for potential Jungian analysis
+    lastDreamText = content;
 
     if (!content) {
         showToast('warning', 'Please describe your dream first.');
@@ -589,21 +609,28 @@ async function handleSleepSubmit(e) {
 
     const data = {
         date: formData.get('date'),
-        duration_hours: parseFloat(formData.get('duration_hours')),
-        wakeups: parseInt(formData.get('wakeups')) || 0,
+        sleep_time: formData.get('sleep_time'),
+        wake_time: formData.get('wake_time'),
+        wakeups: 0,
         quality_rating: parseInt(formData.get('quality_rating')),
         notes: formData.get('notes') || ''
     };
 
-    if (!data.date || isNaN(data.duration_hours)) {
+    if (!data.date || !data.sleep_time || !data.wake_time) {
         showToast('warning', 'Please fill in required fields correctly.');
         return;
     }
 
-    if (data.duration_hours <= 0 || data.duration_hours > 24) {
-        showToast('warning', 'Please enter a valid sleep duration (0-24 hours).');
-        return;
+    // Calculate duration
+    const sleep = new Date(`2000-01-01T${data.sleep_time}`);
+    let wake = new Date(`2000-01-01T${data.wake_time}`);
+    
+    if (wake <= sleep) {
+        // Crosses midnight
+        wake = new Date(`2000-01-02T${data.wake_time}`);
     }
+    
+    data.duration_hours = (wake - sleep) / (1000 * 60 * 60);
 
     if (data.quality_rating < 1 || data.quality_rating > 10) {
         showToast('warning', 'Sleep quality must be between 1 and 10.');
@@ -714,13 +741,28 @@ async function loadSleepRecords() {
 function renderSleepItem(record) {
     const date = formatDate(record.date);
     const qualityPercent = ((record.quality_rating || 5) / 10) * 100;
+    
+    // Format times for display if available
+    const formatTimeForDisplay = (timeStr) => {
+        if (!timeStr) return '';
+        const [hours, minutes] = timeStr.split(':');
+        const h = parseInt(hours);
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        const h12 = h % 12 || 12;
+        return `${h12}:${minutes} ${ampm}`;
+    };
+
+    const sleepTime = record.sleep_time ? formatTimeForDisplay(record.sleep_time) : '';
+    const wakeTime = record.wake_time ? formatTimeForDisplay(record.wake_time) : '';
+    const timeDisplay = sleepTime && wakeTime ? `<div class="sleep-item-times">${sleepTime} - ${wakeTime}</div>` : '';
 
     return `
         <div class="sleep-item">
             <div class="sleep-item-info">
                 <span class="sleep-item-date">${date}</span>
+                ${timeDisplay}
                 <div class="sleep-item-stats">
-                    <span>💤 ${record.duration_hours}h</span>
+                    <span>💤 ${record.duration_hours.toFixed(1)}h</span>
                     <span>🔔 ${record.wakeups || 0} wakeups</span>
                     <div class="sleep-quality-bar">
                         <div class="sleep-quality-fill" style="width: ${qualityPercent}%"></div>
@@ -1211,3 +1253,97 @@ function getEmotionEmoji(emotion) {
     };
     return emojiMap[emotion?.toLowerCase()] || '🌙';
 }
+
+/**
+ * Handle switching to the Jungian Psychology tab
+ */
+function handleJungianTab() {
+    const emptyState = document.getElementById('jungian-empty-state');
+    const resultDiv = document.getElementById('jungian-result');
+
+    if (!lastDreamText) {
+        if (emptyState) emptyState.classList.remove('hidden');
+        if (resultDiv) resultDiv.classList.add('hidden');
+        return;
+    }
+
+    // If we have text but no result yet, or if they want to analyze
+    if (resultDiv && resultDiv.classList.contains('hidden')) {
+        performJungianAnalysis(lastDreamText);
+    }
+}
+
+/**
+ * Trigger Jungian specialized analysis
+ */
+async function performJungianAnalysis(text) {
+    const emptyState = document.getElementById('jungian-empty-state');
+    const resultDiv = document.getElementById('jungian-result');
+    const contentDiv = document.getElementById('jungian-content');
+    const analyzeBtn = document.getElementById('analyze-jungian-btn');
+
+    if (!contentDiv || !resultDiv) return;
+
+    try {
+        if (analyzeBtn) analyzeBtn.disabled = true;
+
+        const response = await getJungianAnalysis(text);
+
+        if (response.error) {
+            throw new Error(response.error);
+        }
+        
+        if (response.fallback_used) {
+            showToast('info', 'API Limit Reached - Showing Offline Basic Analysis', 6000);
+        }
+
+        // Hide empty state, show result
+        if (emptyState) emptyState.classList.add('hidden');
+        resultDiv.classList.remove('hidden');
+
+        // Parse and render the response
+        renderJungianOutput(response.analysis, contentDiv);
+    } catch (error) {
+        console.error('Jungian analysis failed:', error);
+        showToast('error', `Jungian Analysis Error: ${error.message}`);
+    } finally {
+        if (analyzeBtn) analyzeBtn.disabled = false;
+    }
+}
+
+/**
+ * Parse and render the structured Jungian output
+ */
+function renderJungianOutput(text, container) {
+    if (!text) {
+        container.innerHTML = '<p>No analysis received.</p>';
+        return;
+    }
+
+    // Split text into sections based on the numbered sections
+    const sections = text.split(/\d\.\s+/);
+    const sectionNames = ["Symbols Meaning", "Archetypes Identified", "Emotional Insight", "Personal Growth Message"];
+
+    let html = '';
+
+    // Check if we have the expected number of sections (plus content before first section)
+    if (sections.length >= 5) {
+        for (let i = 0; i < 4; i++) {
+            const sectionContent = sections[i + 1] || "";
+            const sectionName = sectionNames[i];
+
+            html += `
+                <div class="jungian-section" style="margin-bottom: 20px;">
+                    <h4 style="color: var(--color-foam); margin-bottom: 8px; border-bottom: 1px solid var(--color-bg-tertiary); padding-bottom: 4px;">${sectionName}</h4>
+                    <p style="color: var(--color-text-secondary); line-height: 1.6;">${escapeHtml(sectionContent.trim())}</p>
+                </div>
+            `;
+        }
+    } else {
+        // Fallback for different formats
+        html = `<div class="jungian-raw-text" style="white-space: pre-wrap; color: var(--color-text-secondary);">${escapeHtml(text)}</div>`;
+    }
+
+    container.innerHTML = html;
+}
+

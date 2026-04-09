@@ -31,6 +31,8 @@ def create_sleep_record():
         record = SleepRecord(
             user_id=user.id,
             date=data['date'],
+            sleep_time=data.get('sleep_time'),
+            wake_time=data.get('wake_time'),
             duration_hours=float(data['duration_hours']),
             wakeups=int(data.get('wakeups', 0)),
             quality_rating=int(data['quality_rating']) if data.get('quality_rating') else None,

@@ -28,16 +28,22 @@ def analyze_jungian(dream_text):
     """
     Analyze dream text using Jungian Psychology via Google Gemini API.
     """
+    if not HAS_GEMINI:
+        return {
+            "error": "Google Generative AI library is not installed. Please run setup.bat to install it."
+        }
+        
+    if not GEMINI_API_KEY:
+        return {
+            "error": "Gemini API key not configured. Please add GEMINI_API_KEY to your .env file."
+        }
+    
     if not dream_text or len(dream_text.strip()) < 10:
         return {
             "error": "Dream text is too short for meaningful analysis."
         }
 
     try:
-        if not HAS_GEMINI or not GEMINI_API_KEY:
-            # Force fallback by raising exception if not configured
-            raise Exception("Gemini not configured or missing library.")
-            
         # Initialize the model
         model = genai.GenerativeModel('gemini-2.5-flash')
         
@@ -76,28 +82,6 @@ Sections:
         
     except Exception as e:
         print(f"ERROR in Jungian Analysis: {str(e)}")
-        
-        # Fallback interpretation if API fails or quota exceeded
-        fallback_analysis = f"""Title: Jungian Interpretation (Offline Mode)
-
-We are currently experiencing high API volumes. Here is a generalized Jungian psychological interpretation based on your entry:
-
-1. Symbols Meaning:
-Your dream contains essential symbols that your unconscious is bringing to your awareness. Common objects or scenarios in dreams often reflect internal psychological states rather than literal reality.
-
-2. Archetypes Identified:
-You may be encountering elements of your Shadow (unacknowledged aspects of yourself) or simply interacting with the Persona (your social mask). Reflect on the main figures in this dream and what parts of your own identity they might represent.
-
-3. Emotional Insight:
-Dreams process the emotional residue of waking life. The primary feeling you experienced during this dream is the most important clue to its meaning.
-
-4. Personal Growth Message:
-Jung believed all dreams lead toward 'individuation'—becoming your whole self. Consider what this dream is asking you to integrate or accept in your waking life.
-
-(Note: This is a generalized offline analysis. Please try again later for a personalized AI interpretation.)"""
-        
         return {
-            "analysis": fallback_analysis,
-            "provider": "Generalized Fallback Engine",
-            "fallback_used": True
+            "error": f"Failed to perform Jungian analysis: {str(e)}"
         }

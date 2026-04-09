@@ -624,12 +624,12 @@ async function handleSleepSubmit(e) {
     // Calculate duration
     const sleep = new Date(`2000-01-01T${data.sleep_time}`);
     let wake = new Date(`2000-01-01T${data.wake_time}`);
-    
+
     if (wake <= sleep) {
         // Crosses midnight
         wake = new Date(`2000-01-02T${data.wake_time}`);
     }
-    
+
     data.duration_hours = (wake - sleep) / (1000 * 60 * 60);
 
     if (data.quality_rating < 1 || data.quality_rating > 10) {
@@ -741,7 +741,7 @@ async function loadSleepRecords() {
 function renderSleepItem(record) {
     const date = formatDate(record.date);
     const qualityPercent = ((record.quality_rating || 5) / 10) * 100;
-    
+
     // Format times for display if available
     const formatTimeForDisplay = (timeStr) => {
         if (!timeStr) return '';
@@ -1291,10 +1291,6 @@ async function performJungianAnalysis(text) {
 
         if (response.error) {
             throw new Error(response.error);
-        }
-        
-        if (response.fallback_used) {
-            showToast('info', 'API Limit Reached - Showing Offline Basic Analysis', 6000);
         }
 
         // Hide empty state, show result

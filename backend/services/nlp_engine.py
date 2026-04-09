@@ -49,8 +49,8 @@ def validate_accuracy(text, emotion_result, sentiment_result):
     Enforces alignment between emotion, sentiment, and context.
     """
     text_lower = text.lower()
-    emo = emotion_result['primary_emotion']
-    sent = sentiment_result['sentiment']
+    emo = emotion_result.get('primary_emotion', '').lower()
+    sent = sentiment_result.get('sentiment', '').lower()
     
     # 1. EMOTION-SENTIMENT ALIGNMENT (MANDATORY RULES)
     # Fear/Sadness/Anger -> Negative Sentiment
@@ -58,7 +58,7 @@ def validate_accuracy(text, emotion_result, sentiment_result):
         if sent != 'negative':
             print(f"STRICT MODE: Re-aligning {sent} sentiment to negative due to {emo} emotion.")
             sentiment_result['sentiment'] = 'negative'
-            sentiment_result['score'] = max(sentiment_result['score'], 0.9) # Boost confidence
+            sentiment_result['score'] = max(sentiment_result.get('score', 0), 0.9) # Boost confidence
             
     # Joy/Love -> Positive Sentiment
     elif emo in ['joy', 'love']:

@@ -81,6 +81,24 @@ Sections:
         }
         
     except Exception as e:
+        error_msg = str(e).lower()
+        if "429" in error_msg or "quota" in error_msg or "exhausted" in error_msg:
+            print("WARNING: Gemini API Quota Exceeded. Using fallback analysis.")
+            fallback_text = (
+                "1. Symbols Meaning: Your dream contains rich symbolism, but our AI is currently at maximum capacity. "
+                "Commonly, symbols represent aspects of your waking life that need attention.\n\n"
+                "2. Archetypes Identified: The characters in your dream often reflect parts of your own psyche—such as the Shadow "
+                "(hidden fears) or the Anima/Animus (inner feminine/masculine).\n\n"
+                "3. Emotional Insight: Your feelings during the dream are the most accurate guide to its meaning. "
+                "Consider what emotions were strongest and how they relate to your current life.\n\n"
+                "4. Personal Growth Message: Every dream is an opportunity to integrate hidden parts of yourself. "
+                "Reflect on the symbols and how they might guide your waking choices."
+            )
+            return {
+                "analysis": fallback_text,
+                "provider": "Fallback (API Quota Exceeded)"
+            }
+            
         print(f"ERROR in Jungian Analysis: {str(e)}")
         return {
             "error": f"Failed to perform Jungian analysis: {str(e)}"

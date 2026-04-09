@@ -376,6 +376,7 @@ body::-webkit-scrollbar {
         padding: 8px var(--space-sm);
         font-size: 0.75rem;
         flex: 1;
+        position: relative;
     }
 
     .tab-btn.active {
@@ -399,7 +400,7 @@ body::-webkit-scrollbar {
     }
 
     .main-content {
-        padding-bottom: 80px;
+        padding-bottom: 100px;
         /* Space for bottom nav */
     }
 }
@@ -690,8 +691,10 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .btn:disabled {
-    opacity: 0.5;
+    opacity: 0.6;
     cursor: not-allowed;
+    color: #fff;
+    background-color: var(--color-bg-tertiary);
 }
 
 /* ========================================

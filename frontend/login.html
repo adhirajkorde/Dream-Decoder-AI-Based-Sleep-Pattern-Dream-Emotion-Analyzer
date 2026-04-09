@@ -50,7 +50,10 @@
 
                 <button type="submit" class="btn btn-primary btn-block">
                     <span class="btn-text" data-i18n="btn_login">Log In</span>
-                    <span class="btn-loader" style="display: none;" data-i18n="auth_logging_in">Logging in...</span>
+                    <span class="btn-status" style="display: none;">
+                        <span class="btn-loader" style="display: inline-block; vertical-align: middle;"></span>
+                        <span data-i18n="auth_logging_in" style="margin-left: 8px;">Logging in...</span>
+                    </span>
                 </button>
 
                 <p class="auth-switch">
@@ -107,8 +110,10 @@
 
                 <button type="submit" class="btn btn-primary btn-block">
                     <span class="btn-text" data-i18n="btn_signup">Sign Up</span>
-                    <span class="btn-loader" style="display: none;" data-i18n="auth_creating_account">Creating
-                        account...</span>
+                    <span class="btn-status" style="display: none;">
+                        <span class="btn-loader" style="display: inline-block; vertical-align: middle;"></span>
+                        <span data-i18n="auth_creating_account">Creating account...</span>
+                    </span>
                 </button>
 
                 <p class="auth-switch">
@@ -155,7 +160,7 @@
 
             const btn = e.target.querySelector('button[type="submit"]');
             const btnText = btn.querySelector('.btn-text');
-            const btnLoader = btn.querySelector('.btn-loader');
+            const btnLoader = btn.querySelector('.btn-status');
 
             const username = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value;
@@ -183,7 +188,7 @@
 
             const btn = e.target.querySelector('button[type="submit"]');
             const btnText = btn.querySelector('.btn-text');
-            const btnLoader = btn.querySelector('.btn-loader');
+            const btnLoader = btn.querySelector('.btn-status');
 
             const username = document.getElementById('signupUsername').value.trim();
             const email = document.getElementById('signupEmail').value.trim();

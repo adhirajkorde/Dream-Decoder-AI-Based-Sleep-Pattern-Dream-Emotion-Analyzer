@@ -1,6 +1,6 @@
 # 🌙 Dream Decoder: Advanced Multilingual Dream Analysis
 
-**Dream Decoder** (v2.6) is a production-grade, full-stack application that transforms personal journaling into deep psychological insight. Leveraging state-of-the-art Natural Language Processing (NLP), the platform analyzes dreams across multiple languages with **100.0% Production Accuracy**.
+**Dream Decoder** is a production-grade, full-stack application that transforms personal journaling into deep psychological insight. Leveraging state-of-the-art Natural Language Processing (NLP) and Artificial Intelligence, the platform analyzes dreams across multiple languages with **100.0% Production Accuracy**.
 
 ---
 
@@ -23,16 +23,28 @@ A robust "Voting" logic layer synchronizes transformer model outputs with symbol
 - **Advanced Filtering**: Automated stopword removal specifically for dreams (filters "dream", "thought", "felt", etc.) to extract only high-impact **Symbols, Locations, and Actions**.
 - **Professional Narratives**: Generates substantive 3-part interpretations, eliminating "Needs Improvement" or "Incomplete" labels.
 
-### 🌎 Multilingual & Voice Features
+---
+
+## ✨ AI-Powered Jungian Analysis
+
+Integrated with **Google Gemini AI** to provide specialized psychological dream analysis rooted in Jungian theory:
+- **Archetype Identification**: Uncovers hidden psychological elements such as the Shadow, Anima/Animus, Self, and Persona.
+- **Symbolic Depth**: Interprets symbols based on the collective unconscious to reveal deeper meanings.
+- **Emotional & Growth Insight**: Delivers personalized messages focusing on personal growth and inner integration.
+- **Resilient Architecture**: Includes robust fallback mechanisms to ensure uninterrupted insights even during API rate limits.
+
+---
+
+## 🌎 Multilingual & Voice Features
 - **Full Support**: Optimized for English, Hindi, Marathi, and Hinglish.
 - **Continuous Voice-to-Text**: High-precision microphone listening for natural dream narration.
-- **Health Tracking**: Correlates dream intensity with sleep quality and emotional cycles.
+- **Health Tracking**: Correlates dream intensity with sleep quality and emotional cycles using accurate **HH:MM** sleep logs.
 
 ---
 
 ## 📊 Analytics & Insights
 - **Emotion Tracking**: Visualized trends via **Chart.js**.
-- **Sleep Correlation**: Automatically correlates sleep quality with dream emotional intensity.
+- **Sleep Correlation**: Automatically correlates sleep quality and exact sleep duration (HH:MM) with dream emotional intensity.
 - **Dynamic Insights**: Personalized health tips triggered by pattern recognition (e.g., Nightmare alerts, Stress cycles).
 
 ---
@@ -43,6 +55,7 @@ A robust "Voting" logic layer synchronizes transformer model outputs with symbol
 |-----------|------------|
 | **Backend** | Python 3.11+, Flask 3.0 |
 | **NLP Engine** | HF Transformers (DistilBERT), SpaCy, Multilingual GoEmotions |
+| **Generative AI** | Google Gemini API (gemini-2.5-flash) |
 | **Security** | Flask-JWT-Extended, Argon2id Hashing |
 | **Frontend** | Vanilla JavaScript (ES6+), CSS3 (Glassmorphism), HTML5 |
 | **Database** | SQLite (SQLAlchemy ORM) |
@@ -51,10 +64,11 @@ A robust "Voting" logic layer synchronizes transformer model outputs with symbol
 
 ## 📁 Installation (Windows)
 
-1.  **Clone the Repository**: `git clone <repo-url>`
-2.  **Initialize Environment**: Run `setup.bat`. This handles virtual environment creation, dependency installation, and database initialization.
-3.  **Launch Application**: Run `start.bat`.
-4.  **Access App**: Open `http://localhost:5000` in your browser.
+1. **Clone the Repository**: `git clone <repo-url>`
+2. **Environment Setup**: Add your `GEMINI_API_KEY` to the `.env` file for advanced Jungian Analysis.
+3. **Initialize Environment**: Run `setup.bat`. This handles virtual environment creation, dependency installation, and database initialization.
+4. **Launch Application**: Run `start.bat`.
+5. **Access App**: Open `http://localhost:5000` in your browser.
 
 ---
 
@@ -64,12 +78,14 @@ The project includes a dedicated verification suite for multi-language accuracy:
 - **Unit Tests**: Validating sentiment logic and keyword extraction.
 - **Integration Tests**: Running full dream analysis cycles on Hindi, Marathi, and Hinglish inputs.
 - **Manual QA**: Verifying interpretation quality for "very short" vs. "long" dream descriptions.
+- **End-to-End Validation**: Ensuring responsive design, robust API fallback systems, and reliable browser-side functionality.
 
 ---
 
 ## 📝 Recent Updates & Fixes
-- **v2.6**: Achieved **100.0% Production Accuracy** across 21-case multilingual verification suite.
-- **v2.5**: Optimized multilingual sentiment accuracy (Voting System).
+- **Latest**: Integrated Google Gemini AI for deep Jungian psychological analysis and added precise HH:MM sleep duration tracking.
+- Achieved **100.0% Production Accuracy** across 21-case multilingual verification suite.
+- Optimized multilingual sentiment accuracy (Voting System) and end-to-end frontend error handling.
 
 ---
 *Professional Development - 2026*

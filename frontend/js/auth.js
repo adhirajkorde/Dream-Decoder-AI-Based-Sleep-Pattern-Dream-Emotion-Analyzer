@@ -10,6 +10,21 @@ class AuthService {
     }
 
     /**
+     * Helper to make fetch requests with API_BASE and error handling
+     */
+    async _fetch(endpoint, options) {
+        try {
+            const url = typeof API_BASE !== 'undefined' ? `${API_BASE}${endpoint}` : endpoint;
+            return await fetch(url, options);
+        } catch (error) {
+            if (error.message === 'Failed to fetch') {
+                throw new Error('Could not connect to the server. Please ensure the backend is running.');
+            }
+            throw error;
+        }
+    }
+
+    /**
      * Get stored authentication token
      */
     getToken() {
@@ -51,7 +66,7 @@ class AuthService {
      * Sign up a new user
      */
     async signup(username, email, password, languagePreference = 'en') {
-        const response = await fetch('/api/auth/signup', {
+        const response = await this._fetch('/api/auth/signup', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -60,7 +75,7 @@ class AuthService {
                 username,
                 email,
                 password,
-                language_preference: 'en'
+                language_preference: languagePreference
             })
         });
 
@@ -80,7 +95,7 @@ class AuthService {
      * Log in an existing user
      */
     async login(usernameOrEmail, password) {
-        const response = await fetch('/api/auth/login', {
+        const response = await this._fetch('/api/auth/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -111,7 +126,7 @@ class AuthService {
 
         if (token) {
             try {
-                await fetch('/api/auth/logout', {
+                await this._fetch('/api/auth/logout', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -136,7 +151,7 @@ class AuthService {
             throw new Error('Not authenticated');
         }
 
-        const response = await fetch('/api/auth/account', {
+        const response = await this._fetch('/api/auth/account', {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -165,7 +180,7 @@ class AuthService {
             throw new Error('Not authenticated');
         }
 
-        const response = await fetch('/api/auth/me', {
+        const response = await this._fetch('/api/auth/me', {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -197,7 +212,7 @@ class AuthService {
             throw new Error('Not authenticated');
         }
 
-        const response = await fetch('/api/auth/language', {
+        const response = await this._fetch('/api/auth/language', {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`,

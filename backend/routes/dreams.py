@@ -17,7 +17,7 @@ def create_dream():
     try:
         user = request.current_user
         data = request.get_json()
-        print(f"DEBUG: Received dream data from user {user.username}: {data}")
+        print(f"DEBUG: Received dream data from user {user.username}: {ascii(data)}")
         
         if not data or 'content' not in data:
             return jsonify({'error': 'Dream content is required'}), 400
